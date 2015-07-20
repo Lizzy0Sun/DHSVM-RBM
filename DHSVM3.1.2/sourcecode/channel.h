@@ -84,6 +84,7 @@ typedef struct {
 	float ExtnCoeff[12];        /* Monthly Extinction coefficient */
 	float Extn;
 	float CanopyBankDist;       /* Distance from bank to canopy */
+        float StreamWidth;          /* segment width used in riparian shading module */
 } CHANRVEG;
 
 /* -------------------------------------------------------------
@@ -144,7 +145,7 @@ void channel_free_classes(ChannelClass * head);
 				/* Channel */
 
 Channel *channel_read_network(const char *file, ChannelClass * class_list, int *MaxID);
-int *channel_read_rveg_param(Channel *net, const char *file, int *MaxID);
+int channel_read_rveg_param(Channel *net, const char *file, int *MaxID);
 void channel_routing_parameters(Channel * net, int deltat);
 Channel *channel_find_segment(Channel * net, SegmentID id);
 int channel_step_initialize_network(Channel * net);

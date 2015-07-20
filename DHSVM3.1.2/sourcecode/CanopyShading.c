@@ -101,7 +101,7 @@ void CalcCanopyShading(TIMESTRUCT *Time, Channel *Channel, SOLARGEOMETRY *SolarG
 		/* Examine six (6) cases based on the shadow length, 
 		canopy bank distance and buffer width */
 	    Dx1 = HDEM * fabs(sin(SolarGeo->SolarAzimuth - StreamAzimuth)/tan(SolarAltitude))
-			-(Channel->rveg.CanopyBankDist+Channel->class2->width);
+			-(Channel->rveg.CanopyBankDist+Channel->rveg.StreamWidth);
 		Dx2 = HDEM * fabs(sin(SolarGeo->SolarAzimuth - StreamAzimuth)/tan(SolarAltitude))
 			-Channel->rveg.CanopyBankDist;
 		
@@ -126,7 +126,7 @@ void CalcCanopyShading(TIMESTRUCT *Time, Channel *Channel, SOLARGEOMETRY *SolarG
 
 		if (ShadeCase > 1) 
 	      /* calculate the effective shade density */
-	      Net_Shade_Fctr = CalcShadeDensity(ShadeCase, HDEM, Channel->class2->width,
+		  Net_Shade_Fctr = CalcShadeDensity(ShadeCase, HDEM, Channel->rveg.StreamWidth,
 					  SolarGeo->SolarAzimuth, StreamAzimuth, SolarAltitude, 
 					  Channel->rveg.TREEHEIGHT, Channel->rveg.BUFFERWIDTH, Dx1, Dx2, Channel->rveg.Extn);
 		else Net_Shade_Fctr = 0.;
