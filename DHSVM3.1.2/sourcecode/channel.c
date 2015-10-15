@@ -16,6 +16,7 @@
 #include <math.h>
 #include <errno.h>
 #include "errorhandler.h"
+#include "DHSVMerror.h"
 #include "channel.h"
 #include "constants.h"
 #include "tableio.h"
@@ -1113,13 +1114,13 @@ channel_save_sed_inflow_text(char *tstring, Channel * net, FILE * out,
 /* -------------------------------------------------------------
    channel_read_rveg_param
    ------------------------------------------------------------- */
-int *channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
+int channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
 {
   Channel *current = NULL;
   int err = 0;
   int done;
-  static const int fields = 17;
-  static TableField rveg_fields[17] = {
+  static const int fields = 18;
+  static TableField rveg_fields[18] = {
     {"ID", TABLE_INTEGER, TRUE, FALSE, {0}, "", NULL},
     {"Height", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
 	{"BufferWidth", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
@@ -1137,6 +1138,7 @@ int *channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
 	{"ExtnCoeff12", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
     {"Dist", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
 	{"Overhang", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
+	{"StreamWidth", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
   };
 
   error_handler(ERRHDL_STATUS,
@@ -1146,7 +1148,7 @@ int *channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
     error_handler(ERRHDL_ERROR,
 		  "channel_read_rveg_param: unable to open file \"%s\": %s",
 		  file, strerror(errno));
-    exit(3);
+	exit(3);
   }
 
   *MaxID = 0;
@@ -1169,6 +1171,7 @@ int *channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
     else {
       current = current->next;
     }
+	printf ("%d\n", current->id);
 
     for (i = 0; i < fields; i++) {
       if (rveg_fields[i].read) {
@@ -1343,6 +1346,16 @@ int *channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
 			err++;
 		  }
 	    break;
+		case 17:
+		  if (rveg_fields[i].value.real >= 0) {
+			current->rveg.StreamWidth = rveg_fields[i].value.real;
+		  }
+		  else {
+			error_handler(ERRHDL_ERROR, "%s: segment %d: segment width (%f) invalid",
+			  file, current->id, rveg_fields[i].value.real);
+			err++;
+		  }
+	    break;
 	  default:
 		error_handler(ERRHDL_FATAL, "channel_read_rveg_param: what is this field %d?", i);
 	  break;
@@ -1365,5 +1378,5 @@ int *channel_read_rveg_param(Channel *head, const char *file, int *MaxID)
     current = NULL;
   }
 
-  return (0);
+  return (err);
 }
