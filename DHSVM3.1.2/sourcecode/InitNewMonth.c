@@ -70,7 +70,8 @@ void InitNewMonth(TIMESTRUCT *Time, OPTIONSTRUCT *Options, MAPSIZE *Map,
       ReportError((char *) Routine, 1);
     flag = Read2DMatrix(FileName, Array, NumberType, Map->NY, Map->NX, 0, VarName, 0);
 	
-	if ((Options->FileFormat == NETCDF && flag == 0) || (Options->FileFormat == BIN)) {
+	if ((Options->FileFormat == NETCDF && flag == 0) 
+	  || (Options->FileFormat == BIN)) {
       for (y = 0, i = 0; y < Map->NY; y++) 
         for (x = 0; x < Map->NX; x++, i++) 
           PrismMap[y][x] = Array[i];
@@ -108,8 +109,8 @@ void InitNewMonth(TIMESTRUCT *Time, OPTIONSTRUCT *Options, MAPSIZE *Map,
   for (i = 0; i < NVegs; i++) {
     for (j = 0; j < VType[i].NVegLayers; j++) {
       VType[i].LAI[j] = VType[i].LAIMonthly[j][Time->Current.Month - 1];
-	  /* Exclude the impervious surface from the calculation */
-	  VType[i].MaxInt[j] = VType[i].LAI[j] * (1 - VType[i].ImpervFrac) * LAI_WATER_MULTIPLIER;
+      VType[i].MaxInt[j] = VType[i].LAI[j] * VType[i].Fract[j] *
+	LAI_WATER_MULTIPLIER;
       VType[i].Albedo[j] = VType[i].AlbedoMonthly[j][Time->Current.Month - 1];
     }
     if (VType[i].OverStory) {
@@ -117,9 +118,9 @@ void InitNewMonth(TIMESTRUCT *Time, OPTIONSTRUCT *Options, MAPSIZE *Map,
       b = VType[i].LeafAngleB;
       l = VType[i].LAI[0] / VType[i].ClumpingFactor;
       if (l == 0)
-	    VType[i].Taud = 1.0;
+	VType[i].Taud = 1.0;
       else
-	    VType[i].Taud =
+	VType[i].Taud =
 	  exp(-b * l) * ((1 - a * l) * exp(-a * l) +
 			 (a * l) * (a * l) * evalexpint(1, a * l));
     }
@@ -310,15 +311,16 @@ void InitNewStep(INPUTFILES *InFiles, MAPSIZE *Map, TIMESTRUCT *Time,
       }
 
     if (Options->HeatFlux == TRUE) {
+
       for (i = 0, j = MM5_lapse; i < NSoilLayers; i++, j++) {
-		Read2DMatrix(InFiles->MM5SoilTemp[i], Array, NumberType, MM5Map->NY,
+	Read2DMatrix(InFiles->MM5SoilTemp[i], Array, NumberType, MM5Map->NY,
 		     MM5Map->NX, Step);
-		for (y = 0; y < Map->NY; y++)
-		  for (x = 0; x < Map->NX; x++) {
-			MM5Y = (int) ((y + MM5Map->OffsetY) * Map->DY / MM5Map->DY);
-			MM5X = (int) ((x - MM5Map->OffsetX) * Map->DX / MM5Map->DY);
-			MM5Input[j][y][x] = Array[MM5Y * MM5Map->NX + MM5X];
-		  }
+	for (y = 0; y < Map->NY; y++)
+	  for (x = 0; x < Map->NX; x++) {
+	    MM5Y = (int) ((y + MM5Map->OffsetY) * Map->DY / MM5Map->DY);
+	    MM5X = (int) ((x - MM5Map->OffsetX) * Map->DX / MM5Map->DY);
+	    MM5Input[j][y][x] = Array[MM5Y * MM5Map->NX + MM5X];
+	  }
       }
     }
     free(Array);

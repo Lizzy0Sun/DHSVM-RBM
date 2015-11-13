@@ -59,8 +59,7 @@
     float *Tcanopy         - Canopy temperature (C)
     float *MeltEnergy      - Energy used in heating and melting of the snow 
                              (W/m2)
-    float *MomentSq        - Momentum squared for rain, used in the 
-		        sediment model (kg* m/s)^2 /m^2*s)
+    float *MomentSq        - Momentum squared for rain (kg* m/s)^2 /m^2*s)
      float *Height          - Height of vegetation (m)
      float MS_Rainfall      - Momentum for direct rainfall () COD
      float LD_FallVelocity  - Leaf drip fall velocity corresponding to the
@@ -97,37 +96,46 @@ void SnowInterception(int y, int x, int Dt, float F, float LAI,
 {
   float AdvectedEnergy;		/* Energy advected by the rain (W/m2) */
   float DeltaSnowInt;		/* Change in the physical swe of snow
-							   interceped on the branches. (m) */
-  float Drip;				/* Amount of drip from intercepted snow as a
-							   result of snowmelt (m) */
+				   interceped on the branches. (m) */
+  float Drip;			/* Amount of drip from intercepted snow as a
+				   result of snowmelt (m) */
   float ExcessSnowMelt;		/* Snowmelt in excess of the water holding
-				               capacity of the tree (m) */
-  float EsSnow;				/* saturated vapor pressure in the snow pack (Pa)  */
+				   capacity of the tree (m) */
+  float EsSnow;			/* saturated vapor pressure in the snow pack
+				   (Pa)  */
   float InitialSnowInt;		/* Initial intercepted snow (m) */
-  float InitialWaterInt;	/* Initial intercepted water (snow and rain) (m) */
-  float LatentHeat;			/* Latent heat flux (W/m2) */
-  float LongOut;			/* Longwave radiation emitted by canopy (W/m2) */
-  float Ls;					/* Latent heat of sublimation (J/(kg K) */
+  float InitialWaterInt;	/* Initial intercepted water (snow and rain)
+				   (m) */
+  float LatentHeat;		/* Latent heat flux (W/m2) */
+  float LongOut;		/* Longwave radiation emitted by canopy 
+				   (W/m2) */
+  float Ls;			/* Latent heat of sublimation (J/(kg K) */
   float MassBalanceError;	/* Mass blalnce to make sure no water is
-				               being destroyed/created (m) */
+				   being destroyed/created (m) */
   float MaxWaterInt;		/* Water interception capacity (m) */
-  float MaxSnowInt;			/* Snow interception capacity (m) - multiplier w/ temp */
+  float MaxSnowInt;		/* Snow interception capacity (m) - 
+				   multiplier w/ temp */
   float NetRadiation;
   float PotSnowMelt;		/* Potential snow melt (m) */
-  float RainThroughFall;	/* Amount of rain reaching to the ground (m) */
+  float RainThroughFall;	/* Amount of rain reaching to the ground (m)
+				 */
   float RefreezeEnergy;		/* Energy available for refreezing or melt */
-  float ReleasedMass;		/* Amount of mass release of intercepted snow (m) */
+  float ReleasedMass;		/* Amount of mass release of intercepted snow
+				   (m) */
   float SensibleHeat;		/* Sensible heat flux (W/m2) */
-  float SnowThroughFall;	/* Amount of snow reaching to the ground (m) */
-  float Tmp;			    /* Temporary variable */
+  float SnowThroughFall;	/* Amount of snow reaching to the ground (m)
+				 */
+  float Tmp;			/* Temporary variable */
   float MaxIntercept;		/* max snow interception - regardless of temp */
-  float overload;			/* overload of intercepted snow due to rainfall
-							   or condensation */
-  float intrainfrac;		/* fraction of intercepted water which is liquid */
+  float overload;		/* overload of intercepted snow due to rainfall
+				   or condensation */
+  float intrainfrac;		/* fraction of intercepted water which is 
+				   liquid */
   float intsnowfrac;		/*fraction of intercepted water which is solid */
   float OriginalRainfall;
 
   /* Initialize Drip, H2O balance, and mass release variables. */
+
   OriginalRainfall = *RainFall;
   InitialWaterInt = *IntSnow + *IntRain;
 
@@ -143,16 +151,19 @@ void SnowInterception(int y, int x, int Dt, float F, float LAI,
      Kobayashi, D., 1986, Snow Accumulation on a Narrow Board,           
      Cold Regions Science and Technology, (13), pp. 239-245.           
      Figure 4. */
+
   if (Tair > -5.0)
     MaxSnowInt = 1.0;
   else
     MaxSnowInt = 0.25;
 
   /* therefore LAI_ratio decreases as temp decreases */
+
   MaxSnowInt *= MaxSnowIntCap;
   MaxIntercept = MaxSnowIntCap;
 
   /* Calculate snow interception. */
+
   DeltaSnowInt = SnowIntEff * *SnowFall;
   if (DeltaSnowInt + *IntSnow > MaxSnowInt)
     DeltaSnowInt = MaxSnowInt - *IntSnow;
@@ -206,6 +217,7 @@ void SnowInterception(int y, int x, int Dt, float F, float LAI,
   /* The canopy temperature is assumed to be equal to the air temperature if 
      the air temperature is below 0C, otherwise the canopy temperature is 
      equal to 0C */
+
   if (Tair > 0.)
     *Tcanopy = 0.;
   else
@@ -214,6 +226,7 @@ void SnowInterception(int y, int x, int Dt, float F, float LAI,
   /* Calculate the net radiation at the canopy surface, using the canopy 
      temperature.  The outgoing longwave is subtracted twice, because the 
      canopy radiates in two directions */
+
   Tmp = *Tcanopy + 273.15;
   LongOut = STEFAN * (Tmp * Tmp * Tmp * Tmp);
   NetRadiation = LocalRad->NetShort[0] + LocalRad->LongIn[0] - 2 * F * LongOut;
@@ -222,6 +235,7 @@ void SnowInterception(int y, int x, int Dt, float F, float LAI,
   /* Calculate the vapor mass flux between the canopy and the surrounding 
      air mass - snow covered aerodynamic resistance is assumed to increase by an order
      of magnitude based on Lunderg et al 1998, Journal of Hydrological Processes */
+
   EsSnow = SatVaporPressure(*Tcanopy);
   *VaporMassFlux = AirDens * (EPS / Press) * (EactAir - EsSnow) / (Ra * 10.0);
   *VaporMassFlux /= WATER_DENSITY;
@@ -385,7 +399,7 @@ void SnowInterception(int y, int x, int Dt, float F, float LAI,
   *RainFall = RainThroughFall + Drip;
   *SnowFall = SnowThroughFall + ReleasedMass;
 
-   /* Find momentum squared of rainfall for use by the sediment model. */
+   /* Find momentum squared of rainfall. */
   if(Understory) 
      /* Since the understory is assumed to cover the entire grid cell, all 
        momentum is associated with leaf drip, eq. 2, Wicks and Bathurst (1996) */

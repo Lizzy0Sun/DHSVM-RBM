@@ -28,192 +28,95 @@
 
 /*****************************************************************************
   SensibleHeatFlux()
-
-  Source: Liang, X., 1995, Modeling ground heat flux in land surface 
-          parameterization schemes
-
-  This function calculates outgoing longwave, sensible heat flux, ground heat flux, 
-  and storage of heat in the thin upper layer, based on 3 soil layer temperature.
-  The first two layers are defined by the soil layer depth of D1 and D2. The 3rd 
-  layer is defined by the damping depth (set to a constant 4.0 m) at which soil 
-  temperature variation is negligible.  
 *****************************************************************************/
-void SensibleHeatFlux(int y, int x, int Dt, float Displacement, 
-			  MET_MAP_PIX *LocalMet, EVAPPIX *LocalEvap, SOILTABLE *SoilType,
-		      SOILPIX *LocalSoil, SNOWPIX *LocalSnow, VEGTABLE *VType, 
-			  PRECIPPIX *LocalPrecip)
+void SensibleHeatFlux(int y, int x, int Dt, float Ra, float ZRef,
+		      float Displacement, float Z0, PIXMET * LocalMet,
+		      float NetShort, float LongIn, float ETot,
+		      int NSoilLayers, float *SoilDepth, SOILTABLE * SoilType,
+		      float MeltEnergy, SOILPIX * LocalSoil)
 {
-  int NSoilLayers;
-  int Tsurf_fbflag;     /* Flag to indicate when any temperature iterations fail to converge */ 
-  int Tsurf_fbcount;    /* count of numbers of Tsurf_fbflag */
-  float F;              /* fractional coverage of overstory (%) */
-  float dp;		        /* the depth at which the interannual change in soil temperature 
-						   is negligible (m) */
-  float LowerRa;		/* Aerodynamic resistance for lower layer (s/m) */
-  float LowerWind;	    /* Wind for lower layer (m/s) */
-  float MaxTSurf;		/* Upper bracket for effective surface temperature (C) */
-  float MinTSurf;		/* Lower bracket for effective surface temperature (C) */
-  float OldTSurf;		/* Effective surface temperature at the end of the last timestep (C) */
+  float FluxDepth;		/* Lower boundary for soil heat flux (m) */
+  float HeatCapacity;		/* Soil heat capacity */
+  float MaxTSurf;		/* Upper bracket for effective surface 
+				   temperature (C) */
+  float MinTSurf;		/* Lower bracket for effective surface
+				   temperature (C) */
+  float OldTSurf;		/* Effective surface temperature at the end of
+				   the last timestep (C) */
+  float KhEff;			/* Thermal conductivity of the soil (W/(m*C)
+				 */
   float TMean;			/* Average surface temperature (C) */
-  float D1;             /* Depth of the first thermal soil layer (m) */
-  float D2;             /* Depth of the second thermal soil layer (m) */
-  float D3;             /* Depth of the third thermal soil layer (m) */
-  float kappa1;         /* Soil thermal conductivity of the top thin layer (W/m/K) */
-  float kappa2;         /* Soil thermal conductivity of the layer of depth [D1, D1+D2] (W/m/K) */
-  float Cs1;            /* Soil heat volumetric capacity oof the layer of depth [D1, D1+D2] (W/m^3/K) */
-  float Cs2;            /* Soil heat volumetric capacity of the top thin layer (W/m^3/K) */
-  float T1_old;         /* Soil temperature at the boundary between 1st and 2nd layers (C) */
-  float T1;             /* Soil temperature at the boundary between 1st and 2nd layers (C) */
-  float T2;             /* Soil temperature at the damping depth where the soil temperature variation
-						   is negligible (C). (>> dp; *NOT* at depth D2) */
-  float deltaH;         /* Change in heat capacity */
-  float grnd_flux;      /* ground heat flux at the depth D1	*/
-  float UpperRa;		/* Aerodynamic resistance for upper layer (s/m) */
-  float UpperWind;	    /* Wind for upper layer (m/s) */
-  float ZRef;		    /* Reference height for sensible heat calculation (m) */
-  float Z0;			    /* Roughness length (m) */
+  float TSoilLower;		/* Temperature os the soil at FluxDepth (C)
+				 */
+  float TSoilUpper;		/* Temperature os the soil in top layer (C)
+				 */
   double Tmp;			/* Temporary value */
 
-  /* Initialize T_fbflag */
-  Tsurf_fbflag = 0;
-  Tsurf_fbcount = 0;
-
-  /* Layers of the soil */
-  NSoilLayers = SoilType->NLayers;
-  
-  if (LocalSnow->HasSnow == TRUE) {
-    ZRef = 2. + Z0_SNOW;
-    Z0 = Z0_SNOW;
-  }
-  else {
-    ZRef = 2. + Z0_GROUND;
-    Z0 = Z0_GROUND;
-  }
-  
-  /* calculate the actual aerodynamic resistances and wind speeds */
-  UpperWind = VType->U[0] * LocalMet->wind_speed;
-  UpperRa = VType->Ra[0] / LocalMet->wind_speed;
-  if (VType->OverStory == TRUE) {
-    LowerWind = VType->U[1] * LocalMet->wind_speed;
-    LowerRa = VType->Ra[1] / LocalMet->wind_speed;
-  }
-  else {
-    LowerWind = UpperWind;
-    LowerRa = UpperRa;
-  }
-  
-  /**************************************************
-    Set All Variables For Use
-  **************************************************/
   OldTSurf = LocalSoil->TSurf;
-  T1_old = LocalSoil->Temp[1];
-  T1 = 0.;
-  T2 = avg_temp; // a constant lower boundary tempeature
-  D1 = VType->RootDepth[0];
-  D2 = VType->RootDepth[1];
-  D3 = VType->RootDepth[2];
+  MaxTSurf = 0.5 * (LocalSoil->TSurf + LocalMet->Tair) + DELTAT;
+  MinTSurf = 0.5 * (LocalSoil->TSurf + LocalMet->Tair) - DELTAT;
 
-  if (VType->OverStory == TRUE) 
-	F = VType->Fract[0];
-  else 
-	F = 0.;
-  
-  /* Set the upper and lower boundary */
-  MaxTSurf = 0.5*(LocalSoil->TSurf+LocalMet->air_temp)+DELTAT;
-  MinTSurf = 0.5*(LocalSoil->TSurf+LocalMet->air_temp)-DELTAT;
+  /* WORK IN PROGRESS */
+  /* the lower boundary for the soil heat flux is currently fixed at a depth 
+     of 1.0 m */
 
-  /* The damping depth is defined as the depth at which the interannual soil 
-     temperature variation is negligible. According to VIC-based studies, by using 
-	 a deeper dp, Liang's approach produces comparable results to the analytical solution */
-  dp = 4.0;
+  FluxDepth = 1.0;
+  TSoilLower = LocalSoil->Temp[NSoilLayers - 1];
+  TSoilUpper = LocalSoil->Temp[0];
 
-  /* Calculate the effective thermal conductivity of the top and second layer */
-  CalcEffectiveKh(NSoilLayers, dp, VType->RootDepth,
-	  SoilType->KhDry, SoilType->KhSol, LocalSoil->Moist,
-	  SoilType->Porosity, LocalSoil->Temp, LocalSoil->LayerKh);
-  /* Comments: the variable LocalSoil->Temp is valid to be used as the criteria here????
-     unless the new Ts and Ts values are transferred back?? */
-  kappa1 = LocalSoil->LayerKh[0];
-  kappa2 = LocalSoil->LayerKh[1];
+  /* Calculate the effective thermal conductivity of the soil above between
+     FluxDepth and DZ_TOP */
 
-  /* Calculate volumetric heat capacities in J/m^3/K */
-  CalcHeatCapacity(NSoilLayers, dp, VType->RootDepth, SoilType->Porosity, 
-	  LocalSoil->Moist,LocalSoil->Temp, LocalSoil->Ch);
-  Cs1 = LocalSoil->Ch[0];
-  Cs2 = LocalSoil->Ch[1];
+  KhEff = CalcEffectiveKh(NSoilLayers, DZ_TOP, FluxDepth, SoilDepth,
+			  SoilType->KhDry, SoilType->KhSol, LocalSoil->Moist,
+			  SoilType->Porosity, LocalSoil->Temp);
 
-  /* Find surface temperature using root brent method */
-  grnd_flux = 0.;
-  deltaH = 0.;
+  /*   KhEff = 1; */
+
+  /* Calculate the effective surface temperature that makes sure that the 
+     sum of the terms of the energy balance equals 0 */
+
   LocalSoil->TSurf =
-    RootBrent(y, x, MinTSurf, MaxTSurf, SurfaceEnergyBalance, Dt, F, LowerRa, 
-	      ZRef, Displacement, Z0, LocalMet->wind_speed, LocalSoil->NetShortIn, 
-		  LocalSoil->NetLongIn, LocalMet->air_dens, LocalMet->Lv, 
-		  LocalEvap->ETot, kappa1, kappa2, Cs1, Cs2, LocalSoil->tau,
-		  dp, D1, D2, LocalMet->air_temp, &T1, T2, T1_old, OldTSurf, 
-		  LocalSoil->MeltEnergy, &grnd_flux, &deltaH);
+    RootBrent(y, x, MinTSurf, MaxTSurf, SurfaceEnergyBalance, Dt, Ra, ZRef,
+	      Displacement, Z0, LocalMet->Wind, NetShort, LongIn,
+	      LocalMet->AirDens, LocalMet->Lv, ETot, KhEff,
+	      SoilType->Ch[0], SoilType->Porosity[0], LocalSoil->Moist[0],
+	      FluxDepth, LocalMet->Tair, TSoilUpper,
+	      TSoilLower, OldTSurf, MeltEnergy);
 
-  if (LocalSoil->TSurf <= -998) {
-	LocalSoil->TSurf = OldTSurf;
-	Tsurf_fbflag = 1;
-    Tsurf_fbcount++;
-  }
-  
-  LocalSoil->Temp[0] = LocalSoil->TSurf;
-  LocalSoil->Temp[1] = T1;
-  LocalSoil->Temp[2] = T2+(T1-T2)*exp(-(D2+D3)/dp);
-  
-  /* Recalculate the terms of the energy balance. This is similar to the
+  /* Calculate the terms of the energy balance.  This is similar to the
      code in SurfaceEnergyBalance.c */
-  TMean = LocalSoil->TSurf;
 
-  if (LocalMet->wind_speed > 0.0)
-	 LowerRa /= StabilityCorrection(ZRef, Displacement, TMean, LocalMet->air_temp,
-			    LocalMet->wind_speed, Z0);
+  TMean = 0.5 * (OldTSurf + LocalSoil->TSurf);
+
+  if (LocalMet->Wind > 0.0)
+    Ra /= StabilityCorrection(ZRef, Displacement, TMean, LocalMet->Tair,
+			      LocalMet->Wind, Z0);
   else
-    LowerRa = DHSVM_HUGE;
-  LocalSoil->Ra = LowerRa;
+    Ra = DHSVM_HUGE;
 
-  /**/
+  LocalSoil->Ra = Ra;
+
   Tmp = TMean + 273.15;
-  LocalSoil->Qnet = LocalSoil->NetShortIn + LocalSoil->NetLongIn 
-	  - STEFAN * (Tmp * Tmp * Tmp * Tmp);
-  
-  /* Calculate the effective thermal conductivity of the top and second layer */
-  CalcEffectiveKh(NSoilLayers, dp, VType->RootDepth,
-	  SoilType->KhDry, SoilType->KhSol, LocalSoil->Moist,
-	  SoilType->Porosity, LocalSoil->Temp, LocalSoil->LayerKh);
-  kappa1 = LocalSoil->LayerKh[0];
-  kappa2 = LocalSoil->LayerKh[1];
+  LocalSoil->Qnet = NetShort + LongIn - STEFAN * (Tmp * Tmp * Tmp * Tmp);
 
-  /* Calculate volumetric heat capacities in J/m^3/K */
-  CalcHeatCapacity(NSoilLayers, dp, VType->RootDepth, SoilType->Porosity, 
-	  LocalSoil->Moist, LocalSoil->Temp, LocalSoil->Ch);
-  Cs1 = LocalSoil->Ch[0];
-  Cs2 = LocalSoil->Ch[1];
+  LocalSoil->Qs = LocalMet->AirDens * CP * (LocalMet->Tair - TMean) / Ra;
 
-  /* Compute the sensible heat flux from the surface */
-  LocalSoil->Qs = LocalMet->air_dens * CP * (LocalMet->air_temp - TMean) / LowerRa;
+  LocalSoil->Qe = -(LocalMet->Lv * ETot) / Dt * WATER_DENSITY;
 
-  /* Compute the latent heat from the Surface and covering Vegetation */
-  LocalSoil->Qe = -(LocalMet->Lv * LocalEvap->ETot) / Dt * WATER_DENSITY;
-  
-  /* Compute the ground heat flux from the top soil layer */
-  LocalSoil->Qg = ((1 - F) + F * LocalSoil->tau) * (kappa1 / D1 * (T1 - TMean));
-  /*LocalSoil->Qg = ((1 - F) + F * LocalSoil->tau) * (kappa1 / D1 * (T1 - TMean)
-	  + (kappa2 / D2 * ( 1. - exp( -D2 / dp )) * (T2 - T1))) / 2.;*/
-  
-  LocalSoil->Qst = (Cs1 * ((OldTSurf + T1_old) - (TMean + T1)) * D1 / Dt / 2.);
+  LocalSoil->Qg = KhEff * (TSoilLower - TMean) / FluxDepth;
 
-  /* Calculate the energy balance error term */
+  HeatCapacity = (1 - SoilType->Porosity[0]) * SoilType->Ch[0];
+
+  if (TSoilUpper >= 0.0)
+    HeatCapacity += LocalSoil->Moist[0] * CH_WATER;
+  else
+    HeatCapacity += LocalSoil->Moist[0] * CH_ICE;
+
+  LocalSoil->Qst = (HeatCapacity * (OldTSurf - TMean) * DZ_TOP) / Dt;
+
   LocalSoil->Qrest = LocalSoil->Qnet + LocalSoil->Qs + LocalSoil->Qe +
-    LocalSoil->Qg + LocalSoil->Qst + LocalSoil->MeltEnergy;
-
-  /* debug */
-  if (y == 395 && x > 109 && x < 180)
-    printf("%2.0f%% F=%.2f t=%4.1f %4.1f %4.1f %4.1f Qnet=%3.0f Qs=%4.0f Qg=%4.0f Qe=%4.0f Qst=%3.0f\n",
-	VType->ImpervFrac*100, F, LocalSoil->TSurf, OldTSurf, T1, LocalMet->air_temp, LocalSoil->Qnet, LocalSoil->Qs, 
-	  LocalSoil->Qg, LocalSoil->Qe, LocalSoil->Qst);
+    LocalSoil->Qg + LocalSoil->Qst + MeltEnergy;
 }
 
 /*****************************************************************************
@@ -241,11 +144,18 @@ void NoSensibleHeatFlux(int Dt, PIXMET * LocalMet, float ETot,
 			SOILPIX * LocalSoil)
 {
   LocalSoil->TSurf = 0.0;
+
   LocalSoil->Ra = 0.0;
+
   LocalSoil->Qnet = 0.0;
+
   LocalSoil->Qs = 0.0;
+
   LocalSoil->Qe = -(LocalMet->Lv * ETot) / Dt * WATER_DENSITY;
+
   LocalSoil->Qg = 0.0;
+
   LocalSoil->Qst = 0.0;
+
   LocalSoil->Qrest = 0.0;
 }

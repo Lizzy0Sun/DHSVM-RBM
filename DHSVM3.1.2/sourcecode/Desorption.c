@@ -27,7 +27,7 @@
 float Desorption(int Dt, float MoistContent, float Porosity, float Ks,
 		 float Press, float m)
 {
-  float Sorptivity;		    /* sorptivity */
+  float Sorptivity;		/* sorptivity */
   float DesorptionVolume;	/* total desorption volume during timestep */
 
   /* Eq. 46, Wigmosta et al [1994] */
@@ -35,9 +35,15 @@ float Desorption(int Dt, float MoistContent, float Porosity, float Ks,
   if (MoistContent > Porosity)
     MoistContent = Porosity;
 
-  Sorptivity = sqrt((double)((8 * Porosity * Ks * Press) /
+/*   Sorptivity =  */
+/*     pow((double) ((8 * Porosity * Ks * Press)/(3.0*(1 + 3*m) * (1 + 4*m))), */
+/* 	(double) 0.5) *  */
+/* 	  pow((double) (MoistContent/Porosity), (double) (1.0/(2.0 * m) + 2)); */
+
+  Sorptivity = sqrt((double)
+		    ((8 * Porosity * Ks * Press) /
 		     (3.0 * (1 + 3 * m) * (1 + 4 * m)))) *
-			 pow((double) (MoistContent / Porosity), (double) (1.0 / (2.0 * m) + 2));
+    pow((double) (MoistContent / Porosity), (double) (1.0 / (2.0 * m) + 2));
 
   /* Eq. 45, Wigmosta et al [1994] */
 

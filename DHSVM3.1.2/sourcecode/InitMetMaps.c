@@ -36,7 +36,7 @@
 *****************************************************************************/
 void InitMetMaps(int NDaySteps, MAPSIZE *Map, MAPSIZE *Radar,
 		 OPTIONSTRUCT *Options, char *WindPath, char *PrecipLapseFile,
-		 float ***PrecipLapseMap, MET_MAP_PIX ***MetMap, float ***PrismMap,
+		 float ***PrecipLapseMap, float ***PrismMap,
 		 unsigned char ****ShadowMap, float ***SkyViewMap,
 		 EVAPPIX ***EvapMap, PRECIPPIX ***PrecipMap,
 		 RADARPIX ***RadarMap, RADCLASSPIX ***RadMap,
@@ -65,6 +65,18 @@ void InitMetMaps(int NDaySteps, MAPSIZE *Map, MAPSIZE *Radar,
       InitPrismMap(Map->NY, Map->NX, PrismMap);
     if (Options->Shading == TRUE)
       InitShadeMap(Options, NDaySteps, Map->NY, Map->NX, ShadowMap, SkyViewMap);
+
+	if (!((*SkyViewMap) = (float **) calloc(Map->NY, sizeof(float *))))
+	  ReportError("InitMetMaps()", 1);
+	for (y = 0; y < Map->NY; y++) {
+	   if (!((*SkyViewMap)[y] = (float *) calloc(Map->NX, sizeof(float))))
+		   ReportError("InitMetMaps()", 1);
+	}
+	for (y = 0; y < Map->NY; y++) {
+	  for (x = 0; x < Map->NX; x++) {
+	    (*SkyViewMap)[y][x] = 1.0;
+    }
+  }
     if (Options->WindSource == MODEL)
       InitWindModelMaps(WindPath, Map->NY, Map->NX, WindModel);
 
@@ -72,28 +84,6 @@ void InitMetMaps(int NDaySteps, MAPSIZE *Map, MAPSIZE *Radar,
   }
   if (Options->MM5 == TRUE && Options->QPF == TRUE && Options->Prism == TRUE)
     InitPrismMap(Map->NY, Map->NX, PrismMap);
-
-  /* Even if the shading option is set false, initiate the Skyview values for
-     all pixels to zero for stream temperatur modeling use */
-  if (Options->Shading == FALSE) {
-	if (!((*SkyViewMap) = (float **) calloc(Map->NY, sizeof(float *))))
-	  ReportError("InitSkyviewMaps()", 1);
-	for (y = 0; y < Map->NY; y++) {
-      if (!((*SkyViewMap)[y] = (float *) calloc(Map->NX, sizeof(float))))
-		ReportError("InitSkyViewMap()", 1);
-	}
-	for (y = 0; y < Map->NY; y++) {
-	  for (x = 0; x < Map->NX; x++) {
-	    (*SkyViewMap)[y][x] = 1.0;
-	  }
-	}
-  }
-  if (!((*MetMap) = (MET_MAP_PIX **) calloc(Map->NY, sizeof(MET_MAP_PIX *))))
-	ReportError("InitMetMap()", 1);
-  for (y = 0; y < Map->NY; y++) {
-	if (!((*MetMap)[y] = (MET_MAP_PIX *) calloc(Map->NX, sizeof(MET_MAP_PIX))))
-      ReportError("InitMetMap()", 1);
-  }
 }
 
 

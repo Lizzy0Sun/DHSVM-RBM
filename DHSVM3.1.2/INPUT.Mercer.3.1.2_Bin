@@ -24,15 +24,12 @@
 # OPTIONS SECTION 
 ################################################################################
 [OPTIONS]                                 # Model Options
-Format               = BIN             # BIN or NETCDF
+Format               = BIN                # BIN or NETCDF
 Extent               = BASIN              # POINT or BASIN
 Gradient             = WATERTABLE 	       # TOPOGRAPHY or WATERTABLE
 Flow Routing         = NETWORK            # UNIT_HYDROGRAPH or NETWORK
 Sensible Heat Flux   = FALSE              # TRUE or FALSE
-Sediment	       = FALSE		# TRUE or FALSE
-Sediment Input File  =			# path for sediment configuration file
-Overland Routing     = CONVENTIONAL	# CONVENTIONAL or KINEMATIC
-Infiltration	       = STATIC		# Static or Dynamic
+Infiltration         = STATIC		# Static or Dynamic
 Interpolation        = VARCRESS           # NEAREST or INVDIST or VARCRESS
 MM5                  = FALSE		# TRUE or FALSE
 QPF                  = FALSE              # TRUE or FALSE
@@ -53,7 +50,7 @@ Temperature lapse rate   = CONSTANT       # CONSTANT or VARIABLE
 Precipitation lapse rate = CONSTANT       # CONSTANT, MAP, or VARIABLE
 Cressman radius      = 10                 # in model pixels
 Cressman stations    =  4                 # number of stations
-Stream Temperature   = TRUE               # TRUE or FALSE
+Stream Temperature   = FALSE              # TRUE or FALSE
 Canopy Shading       = FALSE
 
 ################################################################################
@@ -124,6 +121,7 @@ Basin Mask File   = ../input/mask.bin
 Stream Map File      = ../input/stream.map
 Stream Network File  = ../input/stream.network
 Stream Class File    = ../input/adjust.classfile
+Riparian Veg File    = ../input/rveg.network
 
 ################################## ROAD NETWORK ################################
 # The following three fields are only used if Flow Routing = NETWORK and there

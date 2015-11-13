@@ -34,7 +34,8 @@ long black, white;
 int e, ndx;
 #endif
 
-void InitXGraphics(int argc, char **argv, int ny, int nx, int nd)
+void InitXGraphics(int argc, char **argv, int ny, int nx, int nd, 
+		   MET_MAP_PIX *** MetMap)
 {
   /* following is for the X11 libraries */
 
@@ -200,6 +201,15 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd)
   /* done initializing the X11 Display, available for drawing */
 
   /* initialize the memory used solely by the drawing functions */
+
+  if (!((*MetMap) = (MET_MAP_PIX **) calloc(ny, sizeof(MET_MAP_PIX *))))
+    ReportError("InitXGraphics", 1);
+
+  for (y = 0; y < ny; y++) {
+    if (!((*MetMap)[y] = (MET_MAP_PIX *) calloc(nx, sizeof(MET_MAP_PIX))))
+      ReportError("InitXGraphics", 1);
+  }
+
   if ((temp_array = (float **) malloc(ny * sizeof(float *))) == NULL) {
     ReportError("draw.c", 1);
   }

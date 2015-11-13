@@ -45,6 +45,8 @@ void ReadMetRecord(OPTIONSTRUCT * Options, DATE * Current, int NSoilLayers,
      shortwave (total i.e. direct+diffuse)
      longwave */
 
+  if (Options->HeatFlux == TRUE)
+    NMetVars += NSoilLayers;
   /* expect to see temperature for each soil layer */
   if (Options->PrecipType == STATION)
     NMetVars++;
@@ -104,6 +106,10 @@ void ReadMetRecord(OPTIONSTRUCT * Options, DATE * Current, int NSoilLayers,
   }
 
   i = 0;
+  if (Options->HeatFlux == TRUE)
+    for (i = 0; i < NSoilLayers; i++)
+      MetRecord->Tsoil[i] = Array[5 + i];
+
   if (Options->PrecipType == STATION) {
     MetRecord->Precip = Array[5 + i];
     if (MetRecord->Precip < 0) {

@@ -272,12 +272,6 @@ void InitSoilMap(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
 		  if (!((*SoilMap)[y][x].Temp =
 			  (float *) calloc(Soil->NLayers[Type[i] - 1], sizeof(float))))
 			  ReportError((char *) Routine, 1);
-		  if (!((*SoilMap)[y][x].LayerKh =
-			  (float *) calloc(Soil->NLayers[Type[i] - 1], sizeof(float))))
-			  ReportError((char *) Routine, 1);
-		  if (!((*SoilMap)[y][x].Ch =
-			  (float *) calloc(Soil->NLayers[Type[i] - 1], sizeof(float))))
-			  ReportError((char *) Routine, 1);
 	  }
       else {
 		  (*SoilMap)[y][x].Moist = NULL;

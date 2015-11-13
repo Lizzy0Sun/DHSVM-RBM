@@ -93,19 +93,20 @@ sprintf(FileName, "%sInterception.State.%s%s", Path, Str, fileext);
     GetVarAttr(&DMap);
     Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
     for (y = 0; y < Map->NY; y++) {
-	  for (x = 0; x < Map->NX; x++) {
-		if (INBASIN(TopoMap[y][x].Mask)) {
-		  PrecipMap[y][x].IntRain[i] = 0.0;
-		  NVeg = Veg.NLayers[(VegMap[y][x].Veg - 1)];
-		  if (i < NVeg) {
-			PrecipMap[y][x].IntRain[i] = ((float *) Array)[y * Map->NX + x];
-			if (PrecipMap[y][x].IntRain[i] < 0.0) {
-			  fprintf(stderr, "InitModelState at (x, y) is (%d, %d):\n", x, y);
-			  fprintf(stderr, "\tRain interception negative on layer %d of max %d ... reset to 0\n", i, Veg.MaxLayers);
-			  PrecipMap[y][x].IntRain[i] = 0.0; }
-		  }
+		for (x = 0; x < Map->NX; x++) {
+			if (INBASIN(TopoMap[y][x].Mask)) {
+				PrecipMap[y][x].IntRain[i] = 0.0;
+				NVeg = Veg.NLayers[(VegMap[y][x].Veg - 1)];
+				if (i < NVeg) {
+					PrecipMap[y][x].IntRain[i] = ((float *) Array)[y * Map->NX + x];
+					if (PrecipMap[y][x].IntRain[i] < 0.0) {
+						fprintf(stderr, "InitModelState at (x, y) is (%d, %d):\n", x, y);
+						fprintf(stderr,
+							"\tRain interception negative on layer %d of max %d ... reset to 0\n", i, Veg.MaxLayers);
+						PrecipMap[y][x].IntRain[i] = 0.0; }
+				}
+			}
 		}
-	  }
 	}
   }
 
@@ -118,18 +119,18 @@ sprintf(FileName, "%sInterception.State.%s%s", Path, Str, fileext);
     Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0); 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-		 if (INBASIN(TopoMap[y][x].Mask)) {
-		  PrecipMap[y][x].IntSnow[i] = 0.0;
-		  NVeg = Veg.NLayers[(VegMap[y][x].Veg - 1)];
-		  if (i < NVeg) {
-			PrecipMap[y][x].IntSnow[i] = ((float *) Array)[y * Map->NX + x];
-			if (PrecipMap[y][x].IntSnow[i] < 0.0) {
-			  fprintf(stderr, "InitModelState at (x, y) is (%d, %d):\n", x, y);
-			  fprintf(stderr,
-					  "Snow interception negative on layer %d of max %d ... reset to 0\n", i, Veg.MaxLayers);
-			  PrecipMap[y][x].IntSnow[i] = 0.0; }
+		  if (INBASIN(TopoMap[y][x].Mask)) {
+			  PrecipMap[y][x].IntSnow[i] = 0.0;
+			  NVeg = Veg.NLayers[(VegMap[y][x].Veg - 1)];
+			  if (i < NVeg) {
+				  PrecipMap[y][x].IntSnow[i] = ((float *) Array)[y * Map->NX + x];
+				  if (PrecipMap[y][x].IntSnow[i] < 0.0) {
+					  fprintf(stderr, "InitModelState at (x, y) is (%d, %d):\n", x, y);
+					  fprintf(stderr,
+						  "Snow interception negative on layer %d of max %d ... reset to 0\n", i, Veg.MaxLayers);
+					  PrecipMap[y][x].IntSnow[i] = 0.0; }
+			  }
 		  }
-		 }
       }
     }
   }
@@ -190,7 +191,7 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   DMap.Resolution = MAP_OUTPUT;
   strcpy(DMap.FileName, "");
   GetVarAttr(&DMap);
-  Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -202,7 +203,7 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   DMap.Resolution = MAP_OUTPUT;
   strcpy(DMap.FileName, "");
   GetVarAttr(&DMap);
-  Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -215,7 +216,7 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   DMap.Resolution = MAP_OUTPUT;
   strcpy(DMap.FileName, "");
   GetVarAttr(&DMap);
-  Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -226,8 +227,8 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   DMap.ID = 408;
   DMap.Resolution = MAP_OUTPUT;
   strcpy(DMap.FileName, "");
-  GetVarAttr(&DMap);  
-  Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+  GetVarAttr(&DMap);
+Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -240,6 +241,7 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   strcpy(DMap.FileName, "");
   GetVarAttr(&DMap);
   Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -251,7 +253,7 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   DMap.Resolution = MAP_OUTPUT;
   strcpy(DMap.FileName, "");
   GetVarAttr(&DMap);
-  Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -263,10 +265,10 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
-		if (SnowMap[y][x].HasSnow)
-		  SnowMap[y][x].Albedo = CalcSnowAlbedo(SnowMap[y][x].TSurf, SnowMap[y][x].LastSnow, SnowAlbedo);
-		else
-		  SnowMap[y][x].Albedo = 0;
+		  if (SnowMap[y][x].HasSnow)
+			  SnowMap[y][x].Albedo = CalcSnowAlbedo(SnowMap[y][x].TSurf, SnowMap[y][x].LastSnow, SnowAlbedo);
+		  else
+			  SnowMap[y][x].Albedo = 0;
 	  }
     }
   }
@@ -291,30 +293,30 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
     DMap.Resolution = MAP_OUTPUT;
     strcpy(DMap.FileName, "");
     GetVarAttr(&DMap);
-    Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
+Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-		if (INBASIN(TopoMap[y][x].Mask)) {
-		  NSoil = Soil.NLayers[(SoilMap[y][x].Soil - 1)];
-		  if (i <= NSoil) {
-			SoilMap[y][x].Moist[i] = ((float *) Array)[y * Map->NX + x];
-			if (SoilMap[y][x].Moist[i] < 0.0) {
-			  fprintf(stderr, "InitModelState at (x, y) is (%d, %d):\n", x, y);
-			  fprintf(stderr,
-					"Soil moisture negative in layer %d of max %d ... reset to 0\n",i, Soil.MaxLayers);
-			  SoilMap[y][x].Moist[i] = 0.0;
-			}
+		  if (INBASIN(TopoMap[y][x].Mask)) {
+			  NSoil = Soil.NLayers[(SoilMap[y][x].Soil - 1)];
+			  if (i <= NSoil) {
+				  SoilMap[y][x].Moist[i] = ((float *) Array)[y * Map->NX + x];
+				  if (SoilMap[y][x].Moist[i] < 0.0) {
+					  fprintf(stderr, "InitModelState at (x, y) is (%d, %d):\n", x, y);
+					  fprintf(stderr,
+						  "Soil moisture negative in layer %d of max %d ... reset to 0\n",i, Soil.MaxLayers);
+					  SoilMap[y][x].Moist[i] = 0.0;
+				  }
+			  }
+			  if (i == NSoil) {
+				  if (SoilMap[y][x].Moist[i] < SType[SoilMap[y][x].Soil - 1].FCap[NSoil - 1]) {
+					  SoilMap[y][x].Moist[i] = SType[SoilMap[y][x].Soil - 1].FCap[NSoil - 1];
+				  }
+			  }
+			  if (i < NSoil) {
+				  if (SoilMap[y][x].Moist[i] < SType[SoilMap[y][x].Soil - 1].WP[NSoil - 1]) {
+					  SoilMap[y][x].Moist[i] = SType[SoilMap[y][x].Soil - 1].WP[NSoil - 1]; }
+			  }
 		  }
-		  if (i == NSoil) {
-			if (SoilMap[y][x].Moist[i] < SType[SoilMap[y][x].Soil - 1].FCap[NSoil - 1]) {
-			  SoilMap[y][x].Moist[i] = SType[SoilMap[y][x].Soil - 1].FCap[NSoil - 1];
-			}
-		  }
-		  if (i < NSoil) {
-			if (SoilMap[y][x].Moist[i] < SType[SoilMap[y][x].Soil - 1].WP[NSoil - 1]) {
-			  SoilMap[y][x].Moist[i] = SType[SoilMap[y][x].Soil - 1].WP[NSoil - 1]; }
-		  }
-		}
       }
     }
   }
@@ -341,11 +343,11 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
     Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-		if (INBASIN(TopoMap[y][x].Mask)) {
-		  NSoil = Soil.NLayers[(SoilMap[y][x].Soil - 1)];
-		  if (i < NSoil)
-			SoilMap[y][x].Temp[i] = ((float *) Array)[y * Map->NX + x];
-		}
+		  if (INBASIN(TopoMap[y][x].Mask)) {
+			  NSoil = Soil.NLayers[(SoilMap[y][x].Soil - 1)];
+			  if (i < NSoil)
+				  SoilMap[y][x].Temp[i] = ((float *) Array)[y * Map->NX + x];
+		  }
       }
     }
   }
@@ -369,9 +371,8 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++, DMap.Name, 0);
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
-      if (INBASIN(TopoMap[y][x].Mask)) {
-		SoilMap[y][x].IExcess = ((float *) Array)[y * Map->NX + x];
-		SoilMap[y][x].startRunoff = 0.0;
+        if (INBASIN(TopoMap[y][x].Mask)) {
+			SoilMap[y][x].IExcess = ((float *) Array)[y * Map->NX + x];
 	  }
 	}
   }
@@ -381,21 +382,21 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
   ponds on the surface since that should not be allowed at this point */
   remove = 0.0;
   for (y = 0; y < Map->NY; y++) {
-	for (x = 0; x < Map->NX; x++) {
-	  /* SatFlow needs to be initialized properly in the future.  
-	     For now it will just be set to zero here */
-	  SoilMap[y][x].SatFlow = 0.0;
-	  if (INBASIN(TopoMap[y][x].Mask)) {
-		if ((SoilMap[y][x].TableDepth =
-			WaterTableDepth((Soil.NLayers[SoilMap[y][x].Soil - 1]), SoilMap[y][x].Depth,
-		  VType[VegMap[y][x].Veg - 1].RootDepth, SType[SoilMap[y][x].Soil - 1].Porosity,
-		  SType[SoilMap[y][x].Soil - 1].FCap, Network[y][x].Adjust, SoilMap[y][x].Moist))< 0.0)
-		  /* ReportError((char *) Routine, 35); */  {
-		  remove -= SoilMap[y][x].TableDepth * Map->DX * Map->DY;
-		  SoilMap[y][x].TableDepth = 0.0; }
-	  }
-	  else {
-		SoilMap[y][x].TableDepth = 0; }
+	  for (x = 0; x < Map->NX; x++) {
+		  /* SatFlow needs to be initialized properly in the future.  
+		  For now it will just be set to zero here */
+		  SoilMap[y][x].SatFlow = 0.0;
+		  if (INBASIN(TopoMap[y][x].Mask)) {
+			  if ((SoilMap[y][x].TableDepth =
+				  WaterTableDepth((Soil.NLayers[SoilMap[y][x].Soil - 1]), SoilMap[y][x].Depth,
+				  VType[VegMap[y][x].Veg - 1].RootDepth, SType[SoilMap[y][x].Soil - 1].Porosity,
+				  SType[SoilMap[y][x].Soil - 1].FCap, Network[y][x].Adjust, SoilMap[y][x].Moist))< 0.0)
+				  /* ReportError((char *) Routine, 35); */  {
+					  remove -= SoilMap[y][x].TableDepth * Map->DX * Map->DY;
+					  SoilMap[y][x].TableDepth = 0.0; }
+		  }
+		  else {
+			  SoilMap[y][x].TableDepth = 0; }
 	  }
   }
   if (remove > 0.0) {
@@ -412,12 +413,13 @@ Read2DMatrix(FileName, Array, DMap.NumberType, Map->NY, Map->NX, NSet++,  DMap.N
 	  fclose(HydroStateFile);
   }
   // Initialize the flood detention storage in each pixel for impervious fraction > 0 situation. 
-  for (y = 0; y < Map->NY; y++) {
+for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
-	  SoilMap[y][x].DetentionStorage = 0.0;
-	  SoilMap[y][x].DetentionIn = 0.0;
-	  SoilMap[y][x].DetentionOut = 0.0;}
-  }
+		SoilMap[y][x].DetentionStorage = 0.0;
+		SoilMap[y][x].DetentionIn = 0.0;
+		SoilMap[y][x].DetentionOut = 0.0;
+   }
+}
 }
  
 	

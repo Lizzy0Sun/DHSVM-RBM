@@ -53,8 +53,8 @@ Temperature lapse rate   = CONSTANT       # CONSTANT or VARIABLE
 Precipitation lapse rate = CONSTANT       # CONSTANT, MAP, or VARIABLE
 Cressman radius      = 10                 # in model pixels
 Cressman stations    =  4                 # number of stations
-Stream Temperature   = TRUE               # TRUE or FALSE
-Canopy Shading       = TRUE
+Stream Temperature   = FALSE              # TRUE or FALSE
+Canopy Shading       = FALSE
 
 ################################################################################
 # MODEL AREA SECTION
@@ -125,6 +125,7 @@ Basin Mask File   = ../input/mask.nc
 Stream Map File      = ../input/stream.map
 Stream Network File  = ../input/stream.network
 Stream Class File    = ../input/adjust.classfile
+Riparian Veg File    = ../input/rveg.network
 
 ################################## ROAD NETWORK ################################
 # The following three fields are only used if Flow Routing = NETWORK and there

@@ -40,6 +40,7 @@ void AggregateRadiation(int MaxVegLayers, int NVegL, PIXRAD * Rad,
   TotalRad->NetShort[MaxVegLayers] += Rad->NetShort[NVegL];
   TotalRad->LongIn[MaxVegLayers] += Rad->LongIn[NVegL];
   TotalRad->LongOut[MaxVegLayers] += Rad->LongOut[NVegL];
+  TotalRad->PixelNetShort += Rad->PixelNetShort;
   TotalRad->PixelLongIn += Rad->PixelLongIn;
   TotalRad->PixelLongOut += Rad->PixelLongOut;
 

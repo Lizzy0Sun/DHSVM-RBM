@@ -73,7 +73,7 @@
     radiation transfer through boreal forest canopies, JGR, 1999.
 
 *****************************************************************************/
-float RadiationBalance(OPTIONSTRUCT *Options, int HeatFluxOption, int CanopyRadAttOption, 
+void RadiationBalance(OPTIONSTRUCT *Options, int HeatFluxOption, int CanopyRadAttOption, 
 		      float SineSolarAltitude, float VIC_Rs, float Rs,
 		      float Rsb, float Rsd, float Ld, float Tair,
 		      float Tcanopy, float Tsoil, float SoilAlbedo,
@@ -161,7 +161,6 @@ float RadiationBalance(OPTIONSTRUCT *Options, int HeatFluxOption, int CanopyRadA
 	// total shortwave radiation without any shading effect even if shading is on
 	LocalRad->ObsShortIn = VIC_Rs;
   }
-  return Tau;
 }
 
 /*****************************************************************************
@@ -216,13 +215,12 @@ void LongwaveBalance(OPTIONSTRUCT *Options, unsigned char OverStory, float F,
     LocalRad->LongIn[1] = 0.;
   }
 
-  /* Calculate the surface net incoming longwave */
-  LocalRad->NetLongIn = Ld;
-
   /* Calculate the net longwave for the entire pixel */
+  /* added by Ning */
   if (Options->StreamTemp) {
     if (OverStory == TRUE) {
-      LocalRad->RBMNetLong = Ld * (1 - F) + LocalRad->LongOut[0] * F;
+      LocalRad->RBMNetLong = 
+		Ld * (1 - F) + LocalRad->LongOut[0] * F;
     }
     else {
       LocalRad->RBMNetLong = Ld;
@@ -270,9 +268,8 @@ void LongwaveBalance(OPTIONSTRUCT *Options, unsigned char OverStory, float F,
     timestep, since the shortwave radiation balance is independent of
     the surface temperatures
 *****************************************************************************/
-void ShortwaveBalance(OPTIONSTRUCT *Options, unsigned char OverStory, 
-			float F, float Rs, float Rsb, float Rsd, float Tau, float *Albedo, 
-			PIXRAD *LocalRad)
+void ShortwaveBalance(OPTIONSTRUCT *Options, unsigned char OverStory, float F, float Rs, 
+		      float Rsb, float Rsd, float Tau, float *Albedo, PIXRAD * LocalRad)
 {
   /* Calculate the net shortwave for each layer */
   /* Overstory present, i.e. two layers */
@@ -287,10 +284,9 @@ void ShortwaveBalance(OPTIONSTRUCT *Options, unsigned char OverStory,
 
   /* Calculate the net shortwave for the entire pixel */
   if (OverStory == TRUE) 
-    LocalRad->NetShortIn = Rs * (1 - Albedo[0]) * F * Tau +  
-	                       Rs * (1 - Albedo[1]) * (1 - F);
+    LocalRad->PixelNetShort = Rs * (1 - Albedo[0] * F - Albedo[1] * (1 - F));
   else 
-    LocalRad->NetShortIn = LocalRad->NetShort[0];
+    LocalRad->PixelNetShort = LocalRad->NetShort[0];
 
   /* Calculate the incoming shortwave reaching the water surface */
   if (Options->StreamTemp && !Options->CanopyShading){

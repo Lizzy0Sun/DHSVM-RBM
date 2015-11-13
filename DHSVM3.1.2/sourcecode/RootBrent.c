@@ -24,7 +24,6 @@
 #include "massenergy.h"
 #include "functions.h"
 #include "DHSVMerror.h"
-#include "constants.h"
 
 /*****************************************************************************
   GENERAL DOCUMENTATION FOR THIS MODULE
@@ -103,174 +102,51 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
   float r;
   float s;
   float tol;
-  float last_bad;
-  float last_good;
-  int which_err;
   int i;
   int j;
+  int eval = 0;
 
   sprintf(ErrorString, "%s: y = %d, x = %d", Routine, y, x);
 
   /* initialize variable argument list */
+
   a = LowerBound;
   b = UpperBound;;
   va_start(ap, Function);
   fa = Function(a, ap);
+  eval++;
   va_start(ap, Function);
   fb = Function(b, ap);
- 
-  which_err = 0;
-
-  // If Function returns values of ERROR for both bounds, give up
-  if (fa == ERROR && fb == ERROR) {
-    sprintf(ErrorString,"ERROR: %s: lower and upper bounds %f and %f failed to bracket the root because the given function was not defined at either point.\n",Routine,a,b);
-    va_end(ap);
-    return(ERROR);
-  }      
-
-  // If Function returns value of ERROR for one bound but not both bounds,
-  // move the offending bound until the Function returns a valid value
-  if(fa == ERROR || fb == ERROR) {
-
-    if (fa == ERROR) {
-      which_err = -1;
-      last_bad = a;
-      last_good = b;
-    }
-    else {
-      which_err = 1;
-      last_good = a;
-      last_bad = b;
-    }
-
-    c = 0.5*(last_bad+last_good);
-    va_start(ap, Function);
-    fc = Function(c, ap);
-
-    /* search for valid point via bisection */
-    j = 0;
-    while (fc == ERROR && j < MAXITER) {
-      last_bad = c;
-      c = 0.5*(last_bad+last_good);
-      va_start(ap, Function);
-      fc = Function(c, ap);
-      j++;
-    }
-
-    if (fc == ERROR) {
-      /* if we get here, we could not find a bound for which the function returns a valid value */
-      sprintf(ErrorString,"ERROR: %s: the given function produced undefined values while attempting to bracket the root between %f and %f.\n",Routine,LowerBound,UpperBound);
-      va_end(ap);
-      return(ERROR);
-    }
-    else {
-      if (which_err == -1) {
-        a = c;
-        fa = fc;
-      }
-      else {
-        b = c;
-        fb = fc;
-      }
-    }
-  }
-
-  // At this point, we have two bounds that yield valid values of the target function
+  eval++;
 
   /*  if root not bracketed attempt to bracket the root */
+
   j = 0;
-  while ((fa * fb) >= 0  && j < MAXTRIES) {
-    /* Expansion of bounds depends on whether initial bounds encountered undefined function values */
-    if (which_err == 0) { // No undefined values were encountered
-      a -= TSTEP;
-      b += TSTEP;
-      va_start(ap, Function);
-      fa = Function(a, ap);
-      va_start(ap, Function);
-      fb = Function(b, ap);
-    }
-    else { // Undefined values were encountered
-      if (which_err == -1) { // Undefined values encountered in the lower direction
-        b += TSTEP;
-        va_start(ap, Function);
-        fb = Function(b, ap);
-        if (fb == ERROR) {
-          /* Undefined function values in both directions - give up */
-          sprintf(ErrorString,"ERROR: %s: the given function produced undefined values while attempting to bracket the root between %f and %f.\n",Routine,LowerBound,UpperBound);
-          va_end(ap);
-          return(ERROR);
-        }
-        last_good = a;
-      }
-      else { // Undefined values encountered in the upper direction
-        a -= TSTEP;
-        va_start(ap, Function);
-        fa = Function(a, ap);
-        if (fa == ERROR) {
-          /* Undefined function values in both directions - give up */
-          sprintf(ErrorString,"ERROR: %s: the given function produced undefined values while attempting to bracket the root between %f and %f.\n",Routine,LowerBound,UpperBound);
-          va_end(ap);
-          return(ERROR);
-        }
-        last_good = b;
-      }
-
-      /* search for valid point via bisection */
-      c = 0.5*(last_good+last_bad);
-      va_start(ap, Function);
-      fc = Function(c, ap);
-      i = 0;
-      while (fc == ERROR && i < MAXITER) {
-        last_bad = c;
-        c = 0.5*(last_bad+last_good);
-        va_start(ap, Function);
-        fc = Function(c, ap);
-        i++;
-      }
-
-      if (fc == ERROR) {
-        /* if we get here, we could not find a bound for which the function returns a valid value */
-        sprintf(ErrorString,"ERROR: %s: the given function produced undefined values while attempting to bracket the root between %f and %f.\n",Routine,LowerBound,UpperBound);
-        va_end(ap);
-        return(ERROR);
-      }
-      else {
-        if (which_err == -1) {
-          a = c;
-          fa = fc;
-        }
-        else {
-          b = c;
-          fb = fc;
-        }
-      }
-
-    }
-
+  while ((fa * fb) >= 0 && j < MAXTRIES) {
+    a -= TSTEP;
+    b += TSTEP;
+    va_start(ap, Function);
+    fa = Function(a, ap);
+    eval++;
+    va_start(ap, Function);
+    fb = Function(b, ap);
+    eval++;
     j++;
   }
   if ((fa * fb) >= 0) {
-    /* if we get here, the lower and upper bounds did not bracket the root */
-    sprintf(ErrorString,"WARNING: %s: lower and upper bounds %f and %f failed to bracket the root.\n",Routine,a,b);
-    va_end(ap);
-    return(ERROR);
+    ReportError(ErrorString, 34);
   }
-
-  // At this point, we have bracketed the root
- 
-  // Now search for the root
-
   fc = fb;
 
   for (i = 0; i < MAXITER; i++) {
 
-    if (fb*fc > 0) {
+    if (fb * fc > 0) {
       c = a;
       fc = fa;
       d = b - a;
       e = d;
     }
-    
+
     if (fabs(fc) < fabs(fb)) {
       a = b;
       b = c;
@@ -279,49 +155,49 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
       fb = fc;
       fc = fa;
     }
-    
+
     tol = 2 * MACHEPS * fabs(b) + T;
     m = 0.5 * (c - b);
-    
-    if (fabs(m) <= tol || fb == 0) {
+
+    if (fabs(m) <= tol || fequal(fb, 0.0)) {
       va_end(ap);
       return b;
     }
-    
+
     else {
       if (fabs(e) < tol || fabs(fa) <= fabs(fb)) {
 	d = m;
 	e = d;
       }
       else {
-	s = fb/fa;
-	
-	if (a == c) {
-	  
+	s = fb / fa;
+
+	if (fequal(a, c)) {
+
 	  /* linear interpolation */
-          
+
 	  p = 2 * m * s;
 	  q = 1 - s;
 	}
-	
+
 	else {
-	  
+
 	  /* inverse quadratic interpolation */
-	  
-	  q = fa/fc;
-	  r = fb/fc;
+
+	  q = fa / fc;
+	  r = fb / fc;
 	  p = s * (2 * m * q * (q - r) - (b - a) * (r - 1));
 	  q = (q - 1) * (r - 1) * (s - 1);
 	}
-	
+
 	if (p > 0)
 	  q = -q;
 	else
 	  p = -p;
 	s = e;
 	e = d;
-	if ((2 * p) < ( 3 * m * q - fabs(tol * q)) && p < fabs(0.5 * s * q))
-	  d = p/q;
+	if ((2 * p) < (3 * m * q - fabs(tol * q)) && p < fabs(0.5 * s * q))
+	  d = p / q;
 	else {
 	  d = m;
 	  e = d;
@@ -332,25 +208,8 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
       b += (fabs(d) > tol) ? d : ((m > 0) ? tol : -tol);
       va_start(ap, Function);
       fb = Function(b, ap);
-
-      // Catch ERROR values returned from Function
-      if(fb == ERROR){
-	sprintf(ErrorString,"ERROR returned to root_brent on iteration %d: temperature = %.4f\n",i+1,b);
-	va_end(ap);
-	return( ERROR );
-      }      
-
+      eval++;
     }
   }
-  /* If we get here, there were too many iterations */
-  sprintf(ErrorString,"WARNING: %s: too many iterations.\n",Routine);
-  va_end(ap);
-  return(ERROR);
-
+  ReportError(ErrorString, 33);
 }
-
-#undef MAXTRIES
-#undef MAXITER
-#undef MACHEPS
-#undef TSTEP
-#undef T

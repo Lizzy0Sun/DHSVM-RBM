@@ -53,15 +53,13 @@ void ResetAggregate(LAYER * Soil, LAYER * Veg, AGGREGATED * Total,
     Total->Precip.IntSnow[i] = 0.0;
   }
 
-  /* initiate met data */
-  Total->Met.air_temp = 0.0;
-
   /* initialize radiation data */
   for (i = 0; i < Veg->MaxLayers + 1; i++) {
     Total->Rad.NetShort[i] = 0.0;
     Total->Rad.LongIn[i] = 0.0;
     Total->Rad.LongOut[i] = 0.0;
   }
+  Total->Rad.PixelNetShort = 0.0;
   Total->Rad.PixelLongIn = 0.0;
   Total->Rad.PixelLongOut = 0.0;
 
@@ -100,7 +98,6 @@ void ResetAggregate(LAYER * Soil, LAYER * Veg, AGGREGATED * Total,
   Total->Soil.SatFlow = 0.0;
   Total->Soil.TSurf = 0.0;
   Total->Soil.Qnet = 0.0;
-  Total->Soil.MeltEnergy = 0.0;
   Total->Soil.Qs = 0.0;
   Total->Soil.Qe = 0.0;
   Total->Soil.Qg = 0.0;
@@ -120,24 +117,4 @@ void ResetAggregate(LAYER * Soil, LAYER * Veg, AGGREGATED * Total,
   Total->CulvertReturnFlow = 0;
   Total->CulvertToChannel = 0;
   Total->RunoffToChannel = 0;
-  if (Options->Sediment) {
-    Total->Sediment.Erosion = 0.0; 
-    Total->Sediment.SedFluxOut = 0.0; 
-    Total->Road.Erosion = 0.0;
-    Total->Sediment.RoadSed = 0.0;
-    Total->DebrisInflow = 0.0;
-    Total->SedimentOverlandInflow = 0.0; 
-    Total->SedimentOverroadInflow = 0.0;
-    Total->ChannelSedimentStorage = 0.0;
-    Total->ChannelSuspendedSediment = 0.0;
-    Total->CulvertReturnSedFlow = 0.0; 
-    Total->CulvertSedToChannel = 0.0; 
-    Total->SedimentOutflow = 0.0; 
-    Total->Fine.SatThickness = 0.0; 
-    Total->Fine.DeltaDepth = 0.0; 
-    Total->Fine.Probability = 0.0; 
-    Total->Fine.MassWasting = 0.0; 
-    Total->Fine.MassDeposition = 0.0; 
-    Total->Fine.SedimentToChannel = 0.0; 
-  }
 }

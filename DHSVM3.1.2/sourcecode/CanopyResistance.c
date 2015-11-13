@@ -27,11 +27,15 @@ float CanopyResistance(float LAI, float RsMin, float RsMax, float Rpc,
 		       float VpdThres, float MoistThres, float WP,
 		       float TSoil, float SoilMoisture, float Vpd, float Rp)
 {
-  float MoistFactor;		/* multiplier for resistance due to soil moisture feed-back */
-  float Resistance;			/* Canopy resistance (s/m) */
-  float RpFactor;			/* multiplier for resistance due to light level feed-back */
-  float TFactor;			/* multiplier for resistance due to soil temperaure feed-back */
-  float VpdFactor;			/* multiplier for resistance due to vapor pressure deficit feed-back */
+  float MoistFactor;		/* multiplier for resistance due to soil
+				   moisture feed-back */
+  float Resistance;		/* Canopy resistance (s/m) */
+  float RpFactor;		/* multiplier for resistance due to light
+				   level feed-back */
+  float TFactor;		/* multiplier for resistance due to soil 
+				   temperaure feed-back */
+  float VpdFactor;		/* multiplier for resistance due to vapor
+				   pressure deficit feed-back */
 
   if (TSoil <= 0) {
     Resistance = DHSVM_HUGE;
@@ -42,7 +46,7 @@ float CanopyResistance(float LAI, float RsMin, float RsMax, float Rpc,
   TFactor = 1.0 / (0.176 + 0.0770 * TSoil - 0.0018 * TSoil * TSoil);
 
   /* for OJP */
-  /*   TFactor = 1.0/(.0705 * TSoil - 0.0013 * pow(TSoil, (double) 2.0)); */
+/*   TFactor = 1.0/(.0705 * TSoil - 0.0013 * pow(TSoil, (double) 2.0)); */
 
   if (TFactor <= 0) {
     Resistance = DHSVM_HUGE;
@@ -50,6 +54,7 @@ float CanopyResistance(float LAI, float RsMin, float RsMax, float Rpc,
   }
 
   /* equation 14, Wigmosta et al [1994] */
+
   if (Vpd >= VpdThres) {
     Resistance = DHSVM_HUGE;
     return Resistance;
@@ -58,9 +63,11 @@ float CanopyResistance(float LAI, float RsMin, float RsMax, float Rpc,
     VpdFactor = 1.0 / (1 - Vpd / VpdThres);
 
   /* equation 15, Wigmosta et al [1994 */
+
   RpFactor = 1.0 / ((RsMin / RsMax + Rp / Rpc) / (1 + Rp / Rpc));
 
   /* equation 16, Wigmosta et al [1994] */
+
   if (SoilMoisture <= WP) {
     Resistance = DHSVM_HUGE;
     return Resistance;
@@ -73,4 +80,5 @@ float CanopyResistance(float LAI, float RsMin, float RsMax, float Rpc,
   Resistance = TFactor * VpdFactor * RpFactor * MoistFactor * RsMin / LAI;
 
   return Resistance;
+
 }

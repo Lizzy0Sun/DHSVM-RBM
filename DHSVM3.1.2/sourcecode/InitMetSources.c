@@ -304,17 +304,23 @@ void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT * Time,
   strcpy(InFiles->MM5Precipitation, StrEnv[MM5_precip].VarStr);
 
   if (Options->HeatFlux == TRUE) {
+
     if (!(InFiles->MM5SoilTemp = (char **) calloc(sizeof(char *), NSoilLayers)))
       ReportError(Routine, 1);
+
     for (i = 0; i < NSoilLayers; i++) {
-      if (!(InFiles->MM5SoilTemp[i] = (char *) calloc(sizeof(char), BUFSIZE + 1)))
-		ReportError(Routine, 1);
-        sprintf(KeyName, "MM5 SOIL TEMPERATURE FILE %d", i);
-        GetInitString("METEOROLOGY", KeyName, "", VarStr, (unsigned long) BUFSIZE, Input);
-		if (IsEmptyStr(VarStr))
-	      ReportError(KeyName, 51);
-		strcpy(InFiles->MM5SoilTemp[i], VarStr);
+      if (!
+	  (InFiles->MM5SoilTemp[i] =
+	   (char *) calloc(sizeof(char), BUFSIZE + 1)))
+	ReportError(Routine, 1);
+      sprintf(KeyName, "MM5 SOIL TEMPERATURE FILE %d", i);
+      GetInitString("METEOROLOGY", KeyName, "", VarStr,
+		    (unsigned long) BUFSIZE, Input);
+      if (IsEmptyStr(VarStr))
+	ReportError(KeyName, 51);
+      strcpy(InFiles->MM5SoilTemp[i], VarStr);
     }
+
   }
 
   if (!CopyDouble(&(MM5Map->Yorig), StrEnv[MM5_ext_north].VarStr, 1))

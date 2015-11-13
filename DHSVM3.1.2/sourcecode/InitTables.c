@@ -158,13 +158,6 @@ int InitSoilTable(OPTIONSTRUCT *Options, SOILTABLE ** SType,
     if (!CopyInt(&(*SType)[i].NLayers, VarStr[number_of_layers], 1))
       ReportError(KeyName[number_of_layers], 51);
     Soil->NLayers[i] = (*SType)[i].NLayers;
-
-	if (Options->Routing) {
-	  if (!CopyFloat(&((*SType)[i].Manning), VarStr[manning], 1))
-        ReportError(KeyName[manning], 51);
-	}
-	else if (!Options->Routing)
-		(*SType)[i].Manning = NOT_APPLICABLE;
     
     if (Soil->NLayers[i] > Soil->MaxLayers)
       Soil->MaxLayers = Soil->NLayers[i];
@@ -331,12 +324,14 @@ int InitVegTable(VEGTABLE ** VType, LISTPTR Input, OPTIONSTRUCT * Options,
   Veg->MaxLayers = 0;
   impervious = 0.0;
   for (i = 0; i < NVegs; i++) {
+
     /* Read the key-entry pairs from the input file */
     for (j = 0; j <= understory_monalb; j++) {
       sprintf(KeyName[j], "%s %d", KeyStr[j], i + 1);
       GetInitString(SectionName, KeyName[j], "", VarStr[j],
 		    (unsigned long) BUFSIZE, Input);
     }
+
     /* Assign the entries to the appropriate variables */
     if (IsEmptyStr(VarStr[veg_description]))
       ReportError(KeyName[veg_description], 51);
@@ -394,127 +389,162 @@ int InitVegTable(VEGTABLE ** VType, LISTPTR Input, OPTIONSTRUCT * Options,
 
     /* allocate memory for the vegetation layers */
 
-    if (!((*VType)[i].Fract = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].Fract = (float *) calloc((*VType)[i].NVegLayers,
+					       sizeof(float))))
       ReportError((char *) Routine, 1);
 
     if (Options->CanopyRadAtt == VARIABLE) {
-      if (!((*VType)[i].HemiFract = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+      if (!((*VType)[i].HemiFract = (float *) calloc((*VType)[i].NVegLayers,
+						     sizeof(float))))
       ReportError((char *) Routine, 1);
     }
     else {
       (*VType)[i].HemiFract = NULL;
     }
 
-    if (!((*VType)[i].Height = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].Height = (float *) calloc((*VType)[i].NVegLayers,
+						sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].RsMax = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].RsMax = (float *) calloc((*VType)[i].NVegLayers,
+					       sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].RsMin = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].RsMin = (float *) calloc((*VType)[i].NVegLayers,
+					       sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].MoistThres = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].MoistThres = (float *) calloc((*VType)[i].NVegLayers,
+						    sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].VpdThres = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].VpdThres = (float *) calloc((*VType)[i].NVegLayers,
+						  sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].Rpc = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].Rpc = (float *) calloc((*VType)[i].NVegLayers,
+					     sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].Albedo = (float *) calloc(((*VType)[i].NVegLayers + 1), sizeof(float))))
+    if (!((*VType)[i].Albedo = (float *) calloc(((*VType)[i].NVegLayers + 1),
+						sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].MaxInt = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].MaxInt = (float *) calloc((*VType)[i].NVegLayers,
+						sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].LAI = (float *) calloc((*VType)[i].NVegLayers, sizeof(float))))
+    if (!((*VType)[i].LAI = (float *) calloc((*VType)[i].NVegLayers,
+					     sizeof(float))))
       ReportError((char *) Routine, 1);
-    if (!((*VType)[i].RootFract = (float **) calloc((*VType)[i].NVegLayers, sizeof(float *))))
+    if (!((*VType)[i].RootFract = (float **) calloc((*VType)[i].NVegLayers,
+						    sizeof(float *))))
       ReportError((char *) Routine, 1);
 
     for (j = 0; j < (*VType)[i].NVegLayers; j++) {
       if (!((*VType)[i].RootFract[j] =
 	    (float *) calloc((*VType)[i].NSoilLayers, sizeof(float))))
-		ReportError((char *) Routine, 1);
+	ReportError((char *) Routine, 1);
     }
-    if (!((*VType)[i].RootDepth = (float *) calloc((*VType)[i].NSoilLayers, sizeof(float))))
+    if (!((*VType)[i].RootDepth = (float *) calloc((*VType)[i].NSoilLayers,
+						   sizeof(float))))
       ReportError((char *) Routine, 1);
 
-    if (!((*VType)[i].LAIMonthly = (float **) calloc((*VType)[i].NVegLayers, sizeof(float *))))
+    if (!((*VType)[i].LAIMonthly = (float **) calloc((*VType)[i].NVegLayers,
+						     sizeof(float *))))
       ReportError((char *) Routine, 1);
     for (j = 0; j < (*VType)[i].NVegLayers; j++) {
       if (!((*VType)[i].LAIMonthly[j] = (float *) calloc(12, sizeof(float))))
-		ReportError((char *) Routine, 1);
+	ReportError((char *) Routine, 1);
     }
     
-    if (!((*VType)[i].AlbedoMonthly = (float **) calloc((*VType)[i].NVegLayers, sizeof(float *))))
+    if (!((*VType)[i].AlbedoMonthly = (float **) calloc((*VType)[i].NVegLayers,
+							sizeof(float *))))
       ReportError((char *) Routine, 1);
     for (j = 0; j < (*VType)[i].NVegLayers; j++) {
       if (!((*VType)[i].AlbedoMonthly[j] = (float *) calloc(12, sizeof(float))))
-		ReportError((char *) Routine, 1);
+	ReportError((char *) Routine, 1);
     }
 
     /* assign the entries to the appropriate variables */
     /* allocation of zero memory is not supported on some
        compilers */
     if ((*VType)[i].OverStory == TRUE) {
-	  if (!CopyFloat(&((*VType)[i].Fract[0]), VarStr[fraction], 1))
-		ReportError(KeyName[fraction], 51);
-	  if (Options->CanopyRadAtt == VARIABLE) {
-		if (!CopyFloat(&((*VType)[i].HemiFract[0]), VarStr[hemifraction], 1))
-		  ReportError(KeyName[hemifraction], 51);
-		if (!CopyFloat(&((*VType)[i].ClumpingFactor),VarStr[clumping_factor], 1))
-		  ReportError(KeyName[clumping_factor], 51);
-		if (!CopyFloat(&((*VType)[i].LeafAngleA), VarStr[leaf_angle_a], 1))
-		  ReportError(KeyName[leaf_angle_a], 51);
-		if (!CopyFloat(&((*VType)[i].LeafAngleB), VarStr[leaf_angle_b], 1))
-		  ReportError(KeyName[leaf_angle_b], 51);
-		if (!CopyFloat(&((*VType)[i].Scat), VarStr[scat], 1))
-		  ReportError(KeyName[scat], 51);
-		(*VType)[i].Atten = NOT_APPLICABLE;
+		if (!CopyFloat(&((*VType)[i].Fract[0]), VarStr[fraction], 1))
+			ReportError(KeyName[fraction], 51);
+		
+		if (Options->CanopyRadAtt == VARIABLE) {
+			if (!CopyFloat(&((*VType)[i].HemiFract[0]), VarStr[hemifraction], 1))
+				ReportError(KeyName[hemifraction], 51);
+			if (!CopyFloat(&((*VType)[i].ClumpingFactor),VarStr[clumping_factor], 1))
+			   ReportError(KeyName[clumping_factor], 51);
+			if (!CopyFloat(&((*VType)[i].LeafAngleA), VarStr[leaf_angle_a], 1))
+				ReportError(KeyName[leaf_angle_a], 51);
+			if (!CopyFloat(&((*VType)[i].LeafAngleB), VarStr[leaf_angle_b], 1))
+				ReportError(KeyName[leaf_angle_b], 51);
+			if (!CopyFloat(&((*VType)[i].Scat), VarStr[scat], 1))
+				ReportError(KeyName[scat], 51);
+			(*VType)[i].Atten = NOT_APPLICABLE;
 		}
 		else if (Options->CanopyRadAtt == FIXED) {
-		  if (!CopyFloat(&((*VType)[i].Atten), VarStr[radiation_att], 1))
-			ReportError(KeyName[radiation_att], 51);
-		  (*VType)[i].ClumpingFactor = NOT_APPLICABLE;
-		  (*VType)[i].Scat = NOT_APPLICABLE;
-		  (*VType)[i].LeafAngleA = NOT_APPLICABLE;
-		  (*VType)[i].LeafAngleB = NOT_APPLICABLE;
+			if (!CopyFloat(&((*VType)[i].Atten), VarStr[radiation_att], 1))
+				ReportError(KeyName[radiation_att], 51);
+			(*VType)[i].ClumpingFactor = NOT_APPLICABLE;
+			(*VType)[i].Scat = NOT_APPLICABLE;
+			(*VType)[i].LeafAngleA = NOT_APPLICABLE;
+			(*VType)[i].LeafAngleB = NOT_APPLICABLE;
 		}
 		
 		if (!CopyFloat(&((*VType)[i].Trunk), VarStr[trunk_space], 1))
-		  ReportError(KeyName[trunk_space], 51);
+			ReportError(KeyName[trunk_space], 51);
+		
 		if (!CopyFloat(&((*VType)[i].Cn), VarStr[aerodynamic_att], 1))
-		  ReportError(KeyName[aerodynamic_att], 51);
-		if (!CopyFloat(&((*VType)[i].MaxSnowInt), VarStr[snow_int_cap], 1))
+			ReportError(KeyName[aerodynamic_att], 51);
+
+      if (!CopyFloat(&((*VType)[i].MaxSnowInt), VarStr[snow_int_cap], 1))
 		  ReportError(KeyName[snow_int_cap], 51);
-		if (!CopyFloat(&((*VType)[i].MDRatio), VarStr[mass_drip_ratio], 1))
+
+      if (!CopyFloat(&((*VType)[i].MDRatio), VarStr[mass_drip_ratio], 1))
 		  ReportError(KeyName[mass_drip_ratio], 51);
-		if (!CopyFloat(&((*VType)[i].SnowIntEff), VarStr[snow_int_eff], 1))
-		  ReportError(KeyName[snow_int_eff], 51);
-		if (!CopyFloat((*VType)[i].RootFract[0], VarStr[overstory_fraction], (*VType)[i].NSoilLayers))
-		  ReportError(KeyName[overstory_fraction], 51);
-		
-		if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[overstory_monlai], 12))
-		  ReportError(KeyName[overstory_monlai], 51);
-		
-		if (!CopyFloat((*VType)[i].AlbedoMonthly[0], VarStr[overstory_monalb], 12))
-	      ReportError(KeyName[overstory_monalb], 51);
-		
-		if ((*VType)[i].UnderStory == TRUE) {
-		  (*VType)[i].Fract[1] = 1.0;
-	      if (!CopyFloat((*VType)[i].RootFract[1], VarStr[understory_fraction], (*VType)[i].NSoilLayers))
-	        ReportError(KeyName[understory_fraction], 51);
-		  if (!CopyFloat((*VType)[i].LAIMonthly[1], VarStr[understory_monlai], 12))
-			ReportError(KeyName[understory_monlai], 51);
-		  if (!CopyFloat((*VType)[i].AlbedoMonthly[1], VarStr[understory_monalb], 12))
-	        ReportError(KeyName[understory_monalb], 51);
-		}
-	}
+
+      if (!CopyFloat(&((*VType)[i].SnowIntEff), VarStr[snow_int_eff], 1))
+	ReportError(KeyName[snow_int_eff], 51);
+
+      if (!CopyFloat((*VType)[i].RootFract[0], VarStr[overstory_fraction],
+		     (*VType)[i].NSoilLayers))
+	ReportError(KeyName[overstory_fraction], 51);
+
+      if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[overstory_monlai], 12))
+	ReportError(KeyName[overstory_monlai], 51);
+
+      if (!CopyFloat((*VType)[i].AlbedoMonthly[0], VarStr[overstory_monalb],
+		     12))
+	ReportError(KeyName[overstory_monalb], 51);
+
+      if ((*VType)[i].UnderStory == TRUE) {
+	(*VType)[i].Fract[1] = 1.0;
+	if (!CopyFloat((*VType)[i].RootFract[1], VarStr[understory_fraction],
+		       (*VType)[i].NSoilLayers))
+	  ReportError(KeyName[understory_fraction], 51);
+
+	if (!CopyFloat((*VType)[i].LAIMonthly[1], VarStr[understory_monlai],
+		       12))
+	  ReportError(KeyName[understory_monlai], 51);
+
+	if (!CopyFloat((*VType)[i].AlbedoMonthly[1], VarStr[understory_monalb],
+		       12))
+	  ReportError(KeyName[understory_monalb], 51);
+
+      }
+    }
     else {
       if ((*VType)[i].UnderStory == TRUE) {
-		(*VType)[i].Fract[0] = 1.0;
-		if (!CopyFloat((*VType)[i].RootFract[0], VarStr[understory_fraction], (*VType)[i].NSoilLayers))
-	      ReportError(KeyName[understory_fraction], 51);
-		if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[understory_monlai], 12))
-	      ReportError(KeyName[understory_monlai], 51);
-		if (!CopyFloat((*VType)[i].AlbedoMonthly[0], VarStr[understory_monalb], 12))
-	      ReportError(KeyName[understory_monalb], 51);
-	  }
+	(*VType)[i].Fract[0] = 1.0;
+	if (!CopyFloat((*VType)[i].RootFract[0], VarStr[understory_fraction],
+		       (*VType)[i].NSoilLayers))
+	  ReportError(KeyName[understory_fraction], 51);
+
+	if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[understory_monlai],
+		       12))
+	  ReportError(KeyName[understory_monlai], 51);
+
+	if (!CopyFloat((*VType)[i].AlbedoMonthly[0], VarStr[understory_monalb],
+		       12))
+	  ReportError(KeyName[understory_monalb], 51);
+
+      }
       (*VType)[i].Trunk = NOT_APPLICABLE;
       (*VType)[i].Cn = NOT_APPLICABLE;
       (*VType)[i].Atten = NOT_APPLICABLE;
@@ -524,13 +554,16 @@ int InitVegTable(VEGTABLE ** VType, LISTPTR Input, OPTIONSTRUCT * Options,
     if (!CopyFloat((*VType)[i].Height, VarStr[height], (*VType)[i].NVegLayers))
       ReportError(KeyName[height], 51);
 
-    if (!CopyFloat((*VType)[i].RsMax, VarStr[max_resistance], (*VType)[i].NVegLayers))
+    if (!CopyFloat((*VType)[i].RsMax, VarStr[max_resistance],
+		   (*VType)[i].NVegLayers))
       ReportError(KeyName[max_resistance], 51);
 
-    if (!CopyFloat((*VType)[i].RsMin, VarStr[min_resistance], (*VType)[i].NVegLayers))
+    if (!CopyFloat((*VType)[i].RsMin, VarStr[min_resistance],
+		   (*VType)[i].NVegLayers))
       ReportError(KeyName[min_resistance], 51);
 
-    if (!CopyFloat((*VType)[i].MoistThres, VarStr[moisture_threshold], (*VType)[i].NVegLayers))
+    if (!CopyFloat((*VType)[i].MoistThres, VarStr[moisture_threshold],
+		   (*VType)[i].NVegLayers))
       ReportError(KeyName[moisture_threshold], 51);
 
     if (!CopyFloat((*VType)[i].VpdThres, VarStr[vpd], (*VType)[i].NVegLayers))
@@ -539,13 +572,15 @@ int InitVegTable(VEGTABLE ** VType, LISTPTR Input, OPTIONSTRUCT * Options,
     if (!CopyFloat((*VType)[i].Rpc, VarStr[rpc], (*VType)[i].NVegLayers))
       ReportError(KeyName[rpc], 51);
 
-    if (!CopyFloat((*VType)[i].RootDepth, VarStr[root_zone_depth], (*VType)[i].NSoilLayers))
+    if (!CopyFloat((*VType)[i].RootDepth, VarStr[root_zone_depth],
+		   (*VType)[i].NSoilLayers))
       ReportError(KeyName[root_zone_depth], 51);
 
     /* Calculate the wind speed profiles and the aerodynamical resistances
        for each layer.  The values are normalized for a reference height wind
        speed of 1 m/s, and are adjusted each timestep using actual reference 
        height wind speeds */
+
     CalcAerodynamic((*VType)[i].NVegLayers, (*VType)[i].OverStory,
 		    (*VType)[i].Cn, (*VType)[i].Height, (*VType)[i].Trunk,
 		    (*VType)[i].U, &((*VType)[i].USnow), (*VType)[i].Ra,

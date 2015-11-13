@@ -85,7 +85,9 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
   K2 = VON_KARMAN * VON_KARMAN;
 
   /* No OverStory, thus maximum one soil layer */
+
   if (OverStory == FALSE) {
+
     if (NVegLayers == 0) {
       Z0_Lower = Z0_GROUND;
       d_Lower = 0;
@@ -97,7 +99,8 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
 
     /* No snow */
     U[0] = log((2. + Z0_Lower) / Z0_Lower) / log((Zref - d_Lower) / Z0_Lower);
-    Ra[0] = log((2. + Z0_Lower) / Z0_Lower) * log((Zref - d_Lower) / Z0_Lower) / K2;
+    Ra[0] =
+      log((2. + Z0_Lower) / Z0_Lower) * log((Zref - d_Lower) / Z0_Lower) / K2;
 
     /* Snow */
     *U2mSnow = log((2. + Z0_SNOW) / Z0_SNOW) / log(Zref / Z0_SNOW);
@@ -124,13 +127,18 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
       ReportError("Trunk space height below \"center\" of lower boundary", 48);
 
     /* Resistance for overstory */
-    Ra[0] = log((Zref - d_Upper) / Z0_Upper) / K2 * (Height[0] / (n * (Zw - d_Upper)) *
-       (exp(n * (1 - (d_Upper + Z0_Upper) / Height[0])) - 1) + (Zw - Height[0]) /
+    Ra[0] = log((Zref - d_Upper) / Z0_Upper) / K2 *
+      (Height[0] / (n * (Zw - d_Upper)) *
+       (exp(n * (1 - (d_Upper + Z0_Upper) / Height[0])) - 1) + (Zw -
+								Height[0]) /
        (Zw - d_Upper) + log((Zref - d_Upper) / (Zw - d_Upper)));
 
     /* Wind at different levels in the profile */
     Uw = log((Zw - d_Upper) / Z0_Upper) / log((Zref - d_Upper) / Z0_Upper);
-    Uh = Uw - (1 - (Height[0] - d_Upper) / (Zw - d_Upper)) / log((Zref - d_Upper) / Z0_Upper);
+    Uh =
+      Uw - (1 -
+	    (Height[0] - d_Upper) / (Zw - d_Upper)) / log((Zref -
+							   d_Upper) / Z0_Upper);
     U[0] = Uh * exp(n * ((Z0_Upper + d_Upper) / Height[0] - 1.));
     Ut = Uh * exp(n * (Zt / Height[0] - 1.));
 
@@ -140,8 +148,11 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
     /* case 1: the wind profile to a height of 2m above the lower boundary is 
        entirely logarithmic */
     if (Zt > (2. + Z0_Lower + d_Lower)) {
-      U[1] = Ut * log((2. + Z0_Lower) / Z0_Lower) / log((Zt - d_Lower) / Z0_Lower);
-      Ra[1] = log((2. + Z0_Lower) / Z0_Lower) * log((Zt - d_Lower) / Z0_Lower) / (K2 * Ut);
+      U[1] =
+	Ut * log((2. + Z0_Lower) / Z0_Lower) / log((Zt - d_Lower) / Z0_Lower);
+      Ra[1] =
+	log((2. + Z0_Lower) / Z0_Lower) * log((Zt -
+					       d_Lower) / Z0_Lower) / (K2 * Ut);
     }
 
     /* case 2: the wind profile to a height of 2m above the lower boundary 
@@ -149,9 +160,29 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
        is more than 2 m above the lower boundary */
     else if (Height[0] > (2. + Z0_Lower + d_Lower)) {
       U[1] = Uh * exp(n * ((2. + Z0_Lower + d_Lower) / Height[0] - 1.));
-      Ra[1] = log((Zt - d_Lower) / Z0_Lower) * log((Zt - d_Lower) / Z0_Lower) / (K2 *
-			  Ut) + Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 * (Zw - d_Upper)) 
-			  * (exp(n * (1 - Zt/Height[0])) - exp(n * (1 - (Z0_Lower + d_Lower + 2.) / Height[0])));
+      Ra[1] =
+	log((Zt - d_Lower) / Z0_Lower) * log((Zt -
+					      d_Lower) / Z0_Lower) / (K2 *
+								      Ut) +
+	Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 *
+							(Zw -
+							 d_Upper)) * (exp(n *
+									  (1 -
+									   Zt
+									   /
+									   Height
+									   [0]))
+								      -
+								      exp(n *
+									  (1 -
+									   (Z0_Lower
+									    +
+									    d_Lower
+									    +
+									    2.)
+									   /
+									   Height
+									   [0])));
     }
 
     /* case 3: the top of the overstory is less than 2 m above the lower 
@@ -159,9 +190,19 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
        and part exponential, but only extends to the top of the overstory */
     else {
       U[1] = Uh;
-      Ra[1] = log((Zt - d_Lower) / Z0_Lower) * log((Zt - d_Lower) / Z0_Lower) / (K2 *
-			  Ut) + Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 * (Zw -
-			  d_Upper)) * (exp(n * (1 -Zt / Height[0])) - 1);
+      Ra[1] =
+	log((Zt - d_Lower) / Z0_Lower) * log((Zt -
+					      d_Lower) / Z0_Lower) / (K2 *
+								      Ut) +
+	Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 *
+							(Zw -
+							 d_Upper)) * (exp(n *
+									  (1 -
+									   Zt
+									   /
+									   Height
+									   [0]))
+								      - 1);
       fprintf(stderr,
 	      "WARNING:  Top of overstory is less than 2 meters above the lower boundary\n");
     }
@@ -179,10 +220,25 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
        is more than 2 m above the lower boundary */
     else if (Height[0] > (2. + Z0_SNOW)) {
       *U2mSnow = Uh * exp(n * ((2. + Z0_SNOW) / Height[0] - 1.));
-      *RaSnow = log(Zt / Z0_SNOW) * log(Zt / Z0_SNOW) / (K2 * Ut) +
-		  Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 *
-		  (Zw - d_Upper)) * (exp(n * (1 - Zt/Height[0])) - exp(n * 
-		  (1 - (Z0_SNOW + 2.) / Height[0])));
+      *RaSnow = log(Zt / Z0_SNOW) * log(Zt / Z0_SNOW) /
+	(K2 * Ut) +
+	Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 *
+							(Zw -
+							 d_Upper)) * (exp(n *
+									  (1 -
+									   Zt
+									   /
+									   Height
+									   [0]))
+								      -
+								      exp(n *
+									  (1 -
+									   (Z0_SNOW
+									    +
+									    2.)
+									   /
+									   Height
+									   [0])));
     }
 
     /* case 3: the top of the overstory is less than 2 m above the lower boundary.
@@ -190,9 +246,17 @@ void CalcAerodynamic(int NVegLayers, unsigned char OverStory,
        exponential, but only extends to the top of the overstory */
     else {
       *U2mSnow = Uh;
-      *RaSnow = log(Zt / Z0_SNOW) * log(Zt / Z0_SNOW) / (K2 * Ut) +
-	            Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 *
-				(Zw - d_Upper)) * (exp(n * (1 - Zt / Height [0]))- 1);
+      *RaSnow = log(Zt / Z0_SNOW) * log(Zt / Z0_SNOW) /
+	(K2 * Ut) +
+	Height[0] * log((Zref - d_Upper) / Z0_Upper) / (n * K2 *
+							(Zw -
+							 d_Upper)) * (exp(n *
+									  (1 -
+									   Zt
+									   /
+									   Height
+									   [0]))
+								      - 1);
       fprintf(stderr,
 	      "WARNING:  Top of overstory is less than 2 meters above the lower boundary\n");
     }

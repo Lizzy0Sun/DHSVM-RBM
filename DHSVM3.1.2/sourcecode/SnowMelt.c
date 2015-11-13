@@ -162,6 +162,7 @@ float SnowMelt(int y, int x, int Dt, float Z, float Displacement, float Z0,
   *SurfWater += RainFall;
 
   /* Calculate the surface energy balance for snow_temp = 0.0 */
+
   Qnet = CalcSnowPackEnergyBalance((float) 0.0, Dt, BaseRa, Z, Displacement,
 				   Z0, Wind, ShortRad, LongRadIn, AirDens,
 				   Lv, Tair, Press, Vpd, EactAir, RainFall,
