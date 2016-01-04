@@ -299,15 +299,20 @@ int main(int argc, char **argv)
 			       &MetMap, NGraphics, Time.Current.Month, 0.0,
 			       0.0, SolarGeo.SunMax,
 			       SolarGeo.SineSolarAltitude);
-		  
+
+		  /* get surface tempeature of each soil layer */
 		  for (i = 0; i < Soil.MaxLayers; i++) {
 	        if (Options.HeatFlux == TRUE) {
 	          if (Options.MM5 == TRUE)
 		        SoilMap[y][x].Temp[i] =
 				MM5Input[shade_offset + i + N_MM5_MAPS][y][x];
+
+              /* read tempeature of each soil layer from met station input */
 			  else
 		        SoilMap[y][x].Temp[i] = Stat[0].Data.Tsoil[i];
 			}
+            /* if heat flux option is turned off, soil temperature of all 3 layers 
+            is taken equal to air tempeature */
 	        else
 	          SoilMap[y][x].Temp[i] = LocalMet.Tair;
 		  }

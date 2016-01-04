@@ -54,15 +54,15 @@ Comments     :
 Reference: Shuttleworth, W.J., Evaporation,  In: Maidment, D. R. (ed.),
 Handbook of hydrology,  1993, McGraw-Hill, New York, etc..
 *****************************************************************************/
-PIXMET MakeLocalMetData(int y, int x, MAPSIZE * Map, int DayStep,
-                        OPTIONSTRUCT * Options, int NStats,
-                        METLOCATION * Stat, uchar * MetWeights,
-                        float LocalElev, RADCLASSPIX * RadMap,
-                        PRECIPPIX * PrecipMap, MAPSIZE * Radar,
-                        RADARPIX ** RadarMap, float **PrismMap,
-                        SNOWPIX * LocalSnow, SNOWTABLE * SnowAlbedo,
+PIXMET MakeLocalMetData(int y, int x, MAPSIZE *Map, int DayStep,
+                        OPTIONSTRUCT *Options, int NStats,
+                        METLOCATION *Stat, uchar *MetWeights,
+                        float LocalElev, RADCLASSPIX *RadMap,
+                        PRECIPPIX *PrecipMap, MAPSIZE *Radar,
+                        RADARPIX **RadarMap, float **PrismMap,
+                        SNOWPIX *LocalSnow, SNOWTABLE *SnowAlbedo,
                         float ***MM5Input, float ***WindModel,
-                        float **PrecipLapseMap, MET_MAP_PIX *** MetMap,
+                        float **PrecipLapseMap, MET_MAP_PIX ***MetMap,
                         int NGraphics, int Month, float skyview,
                         unsigned char shadow, float SunMax,
                         float SineSolarAltitude)
@@ -265,7 +265,6 @@ PIXMET MakeLocalMetData(int y, int x, MAPSIZE * Map, int DayStep,
   /* relative humidities can be quite low when precip is occuring */
   /* at times this will results in PET being greater than precip */
   /* allow an option in DHSVM to override RH if Precip is occuring */
-
   if (Options->Rhoverride == TRUE) {
     if (PrecipMap->Precip > 0.0)
       LocalMet.Rh = 100.0;
@@ -306,6 +305,7 @@ PIXMET MakeLocalMetData(int y, int x, MAPSIZE * Map, int DayStep,
   /* Air density, Eq. 4.2.4 Shuttleworth (1993) */
   LocalMet.AirDens = 0.003486 * LocalMet.Press / (275 + LocalMet.Tair);
 
+  /* Snow albedo as a function of days since last snow */
   if (LocalSnow->HasSnow) {
     if (PrecipMap->SnowFall > 0.0)
       LocalSnow->LastSnow = 0;

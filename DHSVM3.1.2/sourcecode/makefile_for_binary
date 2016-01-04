@@ -26,7 +26,7 @@ SlopeAspect.o SnowInterception.o SnowMelt.o SnowPackEnergyBalance.o \
 SoilEvaporation.o StabilityCorrection.o StoreModelState.o	     \
 SurfaceEnergyBalance.o UnsaturatedFlow.o VarID.o WaterTableDepth.o  \
 channel.o channel_grid.o equal.o errorhandler.o globals.o tableio.o \
-channel_complt.o CanopyShading.o
+channel_complt.o RiparianShading.o
 
 SRCS = $(OBJS:%.o=%.c)
 
@@ -111,7 +111,7 @@ CalcWeights.o: CalcWeights.c constants.h settings.h data.h Calendar.h \
  channel_grid.h
 Calendar.o: Calendar.c settings.h functions.h data.h Calendar.h \
  DHSVMChannel.h getinit.h channel.h channel_grid.h DHSVMerror.h
-CanopyShading.o: CanopyShading.c channel.h channel_grid.h constants.h \
+RiparianShading.o: RiparianShading.c channel.h channel_grid.h constants.h \
  functions.h settings.h
 CanopyResistance.o: CanopyResistance.c settings.h massenergy.h data.h \
  Calendar.h constants.h

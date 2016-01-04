@@ -241,7 +241,7 @@ typedef struct {
   float Precip;					/* Total amount of precipitation at pixel (m) */
   float SumPrecip;              /* Accumulated precipitation at pixel (m) */
   float RainFall;		        /* Amount of rainfall (m) */
-  float SnowFall;		        /* Amount of snowfall (m) */
+  float SnowFall;		        /* Amount of snowfall determined by air temperature (m) */
   float MomentSq;               /* Momentum squared for rain (kg* m/s)^2 /m^2*s) */
   float *IntRain;		        /* Rain interception by each vegetation layer (m) */
   float *IntSnow;		        /* Snow interception by each vegetation layer (m) */
@@ -319,7 +319,7 @@ typedef struct {
 } SOLARGEOMETRY;
 
 typedef struct {
-  uchar HasSnow;			/* Snow cover flag */
+  uchar HasSnow;			/* Snow cover flag determined by SWE */
   uchar SnowCoverOver;		/* Flag overstory can be covered */
   unshort LastSnow;			/* Days since last snowfall */
   float Swq;				/* Snow water equivalent */
